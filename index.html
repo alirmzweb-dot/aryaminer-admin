@@ -2,243 +2,407 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aryaminer Admin</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230D321B'/><text x='16' y='23' font-family='Arial' font-weight='700' font-size='18' fill='%2351B963' text-anchor='middle'>A</text></svg>">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Aryaminer Sales</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230D321B'/><text x='16' y='23' font-family='Arial' font-weight='700' font-size='20' fill='%2351B963' text-anchor='middle'>S</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{
   --dark:#0D321B;--dark2:#081a0f;--dark3:#102a1a;
-  --green:#51B963;--green2:#3d9650;
-  --bg:#f2f6f3;--white:#fff;
+  --green:#51B963;--green2:#3d9650;--green3:#2d7040;
+  --bg:#f2f6f3;--white:#ffffff;
   --border:#d4e8d9;--border2:#b8d9bf;
   --text:#0D321B;--soft:#3d6b4a;--muted:#7a9e84;--faint:#adc8b4;
   --red:#c0392b;--red-bg:#fdf0ef;--red-border:#f5c6c2;
-  --amber:#9a6c00;--amber-bg:#fdf8e8;
+  --amber:#9a6c00;--amber-bg:#fdf8e8;--amber-border:#f0dc8a;
   --blue:#1251a3;--blue-bg:#eef4ff;--blue-border:#b8d0f8;
-  --mono:'DM Mono',monospace;--r:12px;--r-sm:8px;
+  --purple:#5e2d8a;--purple-bg:#f5eeff;
+  --mono:'DM Mono',monospace;
+  --r:12px;--r-sm:8px;--r-lg:16px;
   --shadow:0 1px 3px rgba(13,50,27,.06),0 4px 16px rgba(13,50,27,.08);
+  --shadow-lg:0 8px 32px rgba(13,50,27,.14);
 }
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
 button{font-family:'DM Sans',sans-serif;cursor:pointer;border:none;outline:none}
-input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none;background:none}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}
+input,textarea,select{font-family:'DM Sans',sans-serif;outline:none;border:none;background:none}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
 
-/* Login */
+/* ── LOGIN ── */
 .screen{display:none;min-height:100vh}
 .screen.active{display:flex}
 #loginScreen{align-items:center;justify-content:center;
   background:linear-gradient(160deg,var(--dark2) 0%,var(--dark) 60%,var(--dark3) 100%);
   position:relative;overflow:hidden}
 #loginScreen::before{content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 25% 25%,rgba(81,185,99,.1) 0%,transparent 55%),
-             radial-gradient(ellipse at 75% 75%,rgba(81,185,99,.05) 0%,transparent 50%)}
+  background:radial-gradient(ellipse at 30% 20%,rgba(81,185,99,.12) 0%,transparent 60%),
+             radial-gradient(ellipse at 80% 80%,rgba(81,185,99,.06) 0%,transparent 50%)}
 .login-card{position:relative;width:min(400px,92vw);background:rgba(255,255,255,.04);
-  border:1px solid rgba(81,185,99,.2);border-radius:20px;padding:40px 36px;backdrop-filter:blur(20px)}
+  border:1px solid rgba(81,185,99,.2);border-radius:20px;padding:40px 36px;
+  backdrop-filter:blur(20px)}
 .login-brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}
-.login-hex{width:44px;height:44px;background:var(--green);border-radius:10px;
+.login-hexagon{width:44px;height:44px;background:var(--green);border-radius:10px;
   display:flex;align-items:center;justify-content:center;font-size:22px}
-.login-brand-name{font-size:18px;font-weight:700;color:#fff;letter-spacing:.04em}
+.login-brand-text{font-size:18px;font-weight:700;color:#fff;letter-spacing:.04em}
 .login-brand-sub{font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.12em;text-transform:uppercase;margin-top:1px}
-.login-role-badge{font-size:10px;color:rgba(255,255,255,.35);background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.12);padding:3px 10px;border-radius:10px;margin-top:4px;display:inline-block;letter-spacing:.08em}
-.lbl{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
-.pin-in{width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);
+.login-label{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.login-pin{width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);
   border-radius:var(--r);padding:16px 20px;font-size:24px;color:#fff;
   letter-spacing:.4em;text-align:center;font-family:var(--mono);transition:border .2s}
-.pin-in:focus{border-color:rgba(81,185,99,.6)}
-.pin-in::placeholder{color:rgba(255,255,255,.2);letter-spacing:.1em}
-.login-btn{margin-top:14px;width:100%;background:var(--green);color:#fff;font-weight:700;
-  font-size:15px;padding:15px;border-radius:var(--r);transition:all .2s}
-.login-btn:hover{background:var(--green2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(81,185,99,.3)}
+.login-pin:focus{border-color:rgba(81,185,99,.6)}
+.login-pin::placeholder{color:rgba(255,255,255,.2);letter-spacing:.1em}
+.login-submit{margin-top:14px;width:100%;background:var(--green);color:#fff;
+  font-weight:700;font-size:15px;padding:15px;border-radius:var(--r);
+  letter-spacing:.04em;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.login-submit:hover{background:var(--green2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(81,185,99,.3)}
+.login-submit:active{transform:translateY(0)}
 .login-err{color:#f48a84;font-size:13px;margin-top:10px;min-height:18px;text-align:center}
 
-/* App layout */
-#appScreen{flex-direction:row}
-.sidebar{width:240px;min-height:100vh;background:var(--dark);display:flex;flex-direction:column;
-  position:fixed;left:0;top:0;bottom:0;z-index:50}
-.sb-brand{padding:20px 18px 14px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:10px}
-.sb-hex{width:32px;height:32px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.sb-name{font-size:13px;font-weight:700;color:#fff;letter-spacing:.04em}
-.sb-sub{font-size:9px;color:rgba(255,255,255,.3);letter-spacing:.1em;text-transform:uppercase}
-.sb-admin{padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.07)}
-.sb-admin-name{font-size:14px;font-weight:600;color:#fff}
-.sb-role{font-size:10px;color:var(--green);letter-spacing:.08em;text-transform:uppercase;margin-top:1px}
-.sb-nav{padding:10px 10px;flex:1;display:flex;flex-direction:column;gap:1px;overflow-y:auto}
-.nav-i{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--r-sm);
-  cursor:pointer;transition:all .15s;color:rgba(255,255,255,.45);font-size:13px;font-weight:500}
-.nav-i:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.8)}
-.nav-i.on{background:rgba(81,185,99,.15);color:var(--green)}
-.nav-i .ni{font-size:15px;width:20px;text-align:center;flex-shrink:0}
-.nav-i .nb{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:2px 6px;font-family:var(--mono)}
-.nav-section{font-size:9px;color:rgba(255,255,255,.2);letter-spacing:.12em;text-transform:uppercase;
-  padding:10px 11px 4px;font-weight:700}
-.sb-footer{padding:12px 18px;border-top:1px solid rgba(255,255,255,.07)}
-.logout{font-size:12px;color:rgba(255,255,255,.3);background:none;width:100%;text-align:left;transition:color .15s}
-.logout:hover{color:rgba(255,255,255,.6)}
+/* ── APP LAYOUT ── */
+#appScreen{flex-direction:row;background:var(--bg)}
 
-/* Main */
-.main{margin-left:240px;min-height:100vh;display:flex;flex-direction:column}
-.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:13px 28px;
-  display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:40}
+/* Sidebar */
+.sidebar{width:260px;min-height:100vh;background:var(--dark);
+  display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:50;
+  transition:transform .3s}
+.sidebar-brand{padding:22px 20px 16px;display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-hex{width:34px;height:34px;background:var(--green);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.sb-brand-name{font-size:14px;font-weight:700;color:#fff;letter-spacing:.04em}
+.sb-brand-sub{font-size:10px;color:rgba(255,255,255,.35);letter-spacing:.08em}
+.sidebar-manager{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-manager-name{font-size:15px;font-weight:600;color:#fff;margin-bottom:2px}
+.sb-manager-role{font-size:11px;color:var(--green);letter-spacing:.06em;text-transform:uppercase}
+.sidebar-stats{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.07);
+  display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sb-stat{background:rgba(255,255,255,.05);border-radius:var(--r-sm);padding:8px 10px}
+.sb-stat-num{font-family:var(--mono);font-size:20px;font-weight:600;color:#fff;line-height:1}
+.sb-stat-lbl{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.sb-stat.green .sb-stat-num{color:var(--green)}
+.sb-stat.red .sb-stat-num{color:#ef8c87}
+.sb-stat.amber .sb-stat-num{color:#f0c060}
+.sidebar-nav{flex:1;padding:12px 12px;display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-sm);
+  cursor:pointer;transition:all .15s;color:rgba(255,255,255,.5);font-size:13px;font-weight:500}
+.nav-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.8)}
+.nav-item.active{background:rgba(81,185,99,.15);color:var(--green)}
+.nav-item .nav-icon{font-size:16px;width:22px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;
+  font-weight:700;border-radius:10px;padding:2px 7px;font-family:var(--mono)}
+.sidebar-footer{padding:14px 20px;border-top:1px solid rgba(255,255,255,.07)}
+.logout-btn{width:100%;text-align:left;font-size:12px;color:rgba(255,255,255,.3);
+  background:none;padding:8px 0;transition:color .15s}
+.logout-btn:hover{color:rgba(255,255,255,.6)}
+
+/* Main content */
+.main{margin-left:260px;min-height:100vh;display:flex;flex-direction:column;flex:1}
+.topbar{background:var(--white);border-bottom:1px solid var(--border);
+  padding:14px 28px;display:flex;align-items:center;gap:12px;
+  position:sticky;top:0;z-index:40;box-shadow:0 1px 0 var(--border)}
 .topbar-title{font-size:15px;font-weight:700;color:var(--dark);flex:1}
-.tb-badge{background:var(--red);color:#fff;font-size:11px;font-weight:700;
-  border-radius:20px;padding:3px 9px;font-family:var(--mono)}
-.tb-badge.hidden{display:none}
-.tb-refresh{font-size:13px;color:var(--muted);background:var(--bg);border:1px solid var(--border);
-  padding:7px 14px;border-radius:var(--r-sm);transition:all .15s}
-.tb-refresh:hover{border-color:var(--green2);color:var(--green2)}
+.topbar-search{display:flex;align-items:center;gap:8px;background:var(--bg);
+  border:1.5px solid var(--border);border-radius:var(--r-sm);padding:8px 14px;
+  min-width:220px;transition:border .2s}
+.topbar-search:focus-within{border-color:var(--green2)}
+.topbar-search input{font-size:13px;color:var(--text);flex:1;min-width:0}
+.topbar-search input::placeholder{color:var(--faint)}
 
-/* Pages */
-.page{display:none;padding:24px 28px;flex:1}
+/* Page content */
+.page{display:none;flex:1;padding:24px 28px}
 .page.active{display:block}
 
-/* Dashboard overview */
-.overview-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px}
-.ov-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);
-  padding:16px 18px;position:relative;overflow:hidden}
-.ov-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.ov-card.c-blue::after{background:var(--blue)}
-.ov-card.c-amber::after{background:#d4a017}
-.ov-card.c-red::after{background:var(--red)}
-.ov-card.c-green::after{background:var(--green)}
-.ov-card.c-muted::after{background:var(--faint)}
-.ov-num{font-family:var(--mono);font-size:28px;font-weight:700;line-height:1;margin-bottom:3px}
-.ov-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
-.c-blue .ov-num{color:var(--blue)}
-.c-amber .ov-num{color:var(--amber)}
-.c-red .ov-num{color:var(--red)}
-.c-green .ov-num{color:var(--green2)}
-.c-muted .ov-num{color:var(--muted)}
+/* ── DASHBOARD PAGE ── */
+.dash-grid-top{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.dash-stat-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);
+  padding:18px 20px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.dash-stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.dash-stat-card.blue::after{background:var(--blue)}
+.dash-stat-card.amber::after{background:#d4a017}
+.dash-stat-card.red::after{background:var(--red)}
+.dash-stat-card.green::after{background:var(--green)}
+.dash-stat-card.muted::after{background:var(--muted)}
+.dash-stat-card:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
+.ds-num{font-family:var(--mono);font-size:32px;font-weight:600;color:var(--dark);line-height:1;margin-bottom:4px}
+.ds-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+.ds-arrow{position:absolute;top:18px;right:18px;font-size:16px;color:var(--faint)}
+.ds-color-blue .ds-num{color:var(--blue)}
+.ds-color-amber .ds-num{color:var(--amber)}
+.ds-color-red .ds-num{color:var(--red)}
+.ds-color-green .ds-num{color:var(--green2)}
 
-/* Manager cards */
-.mgr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:16px}
-.mgr-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);
-  overflow:hidden;transition:all .15s;cursor:pointer}
-.mgr-card:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
-.mgr-card-head{padding:16px 20px;background:linear-gradient(135deg,var(--dark),var(--dark3));
-  display:flex;align-items:center;gap:12px}
-.mgr-avatar{width:40px;height:40px;background:var(--green);border-radius:10px;
-  display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;
-  color:var(--dark);flex-shrink:0}
-.mgr-name{font-size:15px;font-weight:700;color:#fff}
-.mgr-email{font-size:11px;color:rgba(255,255,255,.4);margin-top:1px}
-.mgr-wr{margin-left:auto;text-align:right}
-.mgr-wr-num{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--green)}
-.mgr-wr-lbl{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em}
-.mgr-card-body{padding:16px 20px}
-.mgr-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
-.ms{background:var(--bg);border-radius:var(--r-sm);padding:8px 6px;text-align:center}
-.ms-n{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--dark)}
-.ms-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
-.ms.sale .ms-n{color:var(--green2)}.ms.long .ms-n{color:var(--red)}.ms.wait .ms-n{color:var(--amber)}
-.mgr-alerts{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
-.al{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px}
-.al-r{background:var(--red-bg);color:var(--red)}.al-a{background:var(--amber-bg);color:var(--amber)}
-.al-b{background:var(--blue-bg);color:var(--blue)}
-.mgr-chart{margin-top:4px}
-.bar-row{display:flex;align-items:flex-end;gap:4px;height:50px}
-.bar-c{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
-.bar-b{border-radius:3px 3px 0 0;min-height:2px;background:var(--green);width:100%}
-.bar-v{font-size:8px;color:var(--soft);font-family:var(--mono);font-weight:600}
-.bar-l{font-size:8px;color:var(--muted)}
+.dash-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.dash-panel{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:20px}
+.dash-panel-title{font-size:12px;font-weight:700;color:var(--muted);
+  letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;
+  display:flex;align-items:center;justify-content:space-between}
+.dash-panel-title a{font-size:11px;color:var(--green2);font-weight:600;cursor:pointer;text-decoration:none;text-transform:none;letter-spacing:0}
 
-/* Alerts panel */
-.alert-panel{background:linear-gradient(135deg,#1f0505,#2d0808);border:1.5px solid rgba(192,57,43,.4);
-  border-radius:var(--r);padding:16px 20px;margin-bottom:20px}
-.ap-title{font-size:13px;font-weight:700;color:#ef8c87;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.ap-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(192,57,43,.2);cursor:pointer}
-.ap-item:last-child{border-bottom:none}
-.ap-days{font-family:var(--mono);font-size:16px;font-weight:700;color:#ef8c87;width:40px;flex-shrink:0}
-.ap-info{flex:1}
-.ap-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.8)}
-.ap-mgr{font-size:10px;color:rgba(255,255,255,.35)}
+/* Waiting items */
+.w-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.w-item:last-child{border-bottom:none;padding-bottom:0}
+.w-item:hover{opacity:.85}
+.w-days{width:48px;height:48px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+.w-days-num{font-family:var(--mono);font-size:17px;font-weight:700;line-height:1}
+.w-days-lbl{font-size:8px;text-transform:uppercase;letter-spacing:.04em;margin-top:1px;font-weight:600}
+.w-green{background:#e8f7eb;color:var(--green2)}
+.w-amber{background:var(--amber-bg);color:var(--amber)}
+.w-red{background:var(--red-bg);color:var(--red)}
+.w-info{flex:1;min-width:0}
+.w-name{font-size:13px;font-weight:600;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.w-phone{font-size:11px;color:var(--muted);font-family:var(--mono)}
 
-/* Messages */
-.compose{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px}
-.form-lbl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:5px}
-.form-in{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-sm);
-  padding:10px 14px;font-size:14px;color:var(--text);transition:border .2s;margin-bottom:12px}
-.form-in:focus{border-color:var(--green2)}
-.form-ta{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-sm);
-  padding:10px 14px;font-size:13px;color:var(--text);resize:vertical;min-height:80px;
-  transition:border .2s;margin-bottom:12px}
-.form-ta:focus{border-color:var(--green2)}
-.form-sel{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-sm);
-  padding:10px 14px;font-size:14px;color:var(--text);margin-bottom:12px}
+/* Admin message items in dash */
+.admin-msg-item{background:var(--blue-bg);border:1.5px solid var(--blue-border);
+  border-radius:var(--r-sm);padding:12px 14px;margin-bottom:8px;cursor:pointer}
+.admin-msg-item:hover{border-color:var(--blue)}
+.admin-msg-from{font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.admin-msg-phone{font-size:10px;color:var(--muted);font-family:var(--mono)}
+.admin-msg-text{font-size:13px;color:var(--dark);line-height:1.4;margin-top:4px}
+.admin-msg-time{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:4px}
+
+/* Pressure banner */
+.pressure-banner{background:linear-gradient(135deg,#2d0808,#450f0f);
+  border:1.5px solid rgba(192,57,43,.5);border-radius:var(--r);
+  padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:14px}
+.pb-icon{font-size:24px;flex-shrink:0}
+.pb-title{font-size:13px;font-weight:700;color:#ef8c87;margin-bottom:3px}
+.pb-body{font-size:12px;color:rgba(255,255,255,.5);line-height:1.4}
+.pb-action{margin-left:auto;background:var(--red);color:#fff;font-size:12px;
+  font-weight:700;padding:8px 14px;border-radius:20px;white-space:nowrap;cursor:pointer;flex-shrink:0}
+
+/* ── LEADS PAGE ── */
+.leads-layout{display:grid;grid-template-columns:400px 1fr;gap:0;height:calc(100vh - 57px);
+  margin:-24px -28px;overflow:hidden}
+.leads-list-col{border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.leads-list-header{padding:16px;border-bottom:1px solid var(--border);background:var(--white)}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--bg);
+  border:1.5px solid var(--border);border-radius:var(--r-sm);padding:9px 14px;margin-bottom:10px}
+.search-box input{font-size:13px;color:var(--text);flex:1;min-width:0}
+.search-box input::placeholder{color:var(--faint)}
+.filter-chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.filter-chips::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;
+  background:var(--bg);border:1.5px solid var(--border);color:var(--soft);
+  cursor:pointer;transition:all .15s;white-space:nowrap}
+.chip.active{background:var(--dark);border-color:var(--dark);color:#fff}
+.leads-scroll{flex:1;overflow-y:auto}
+.lead-row{padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;
+  transition:background .1s;display:flex;align-items:flex-start;gap:10px;
+  border-left:3px solid transparent}
+.lead-row:hover{background:#f7fbf8}
+.lead-row.selected{background:var(--blue-bg);border-left-color:var(--blue)}
+.lead-row.lc-new{border-left-color:var(--blue)}
+.lead-row.lc-wait{border-left-color:#d4a017}
+.lead-row.lc-long{border-left-color:var(--red)}
+.lead-row.lc-sale{border-left-color:var(--green)}
+.lead-row.lc-cs{border-left-color:var(--purple)}
+.lead-row.lc-closed{border-left-color:var(--faint)}
+.lr-info{flex:1;min-width:0}
+.lr-top{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.lr-phone{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--dark);word-break:break-all;flex-shrink:0}
+.lr-name{font-size:12px;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lr-profile{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.lr-bottom{display:flex;align-items:center;gap:6px;margin-top:5px}
+.lr-tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--bg);color:var(--soft)}
+.lr-time{font-size:10px;color:var(--faint);font-family:var(--mono);margin-left:auto}
+.lr-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;
+  white-space:nowrap;text-transform:uppercase;letter-spacing:.04em;flex-shrink:0}
+.badge-new{background:var(--blue);color:#fff}
+.badge-cs{background:var(--purple);color:#fff}
+.badge-wait{background:#d4a017;color:#fff}
+.badge-long{background:var(--red);color:#fff}
+.badge-sale{background:var(--green2);color:#fff}
+.badge-closed{background:var(--muted);color:#fff}
+
+/* Lead detail col */
+.lead-detail-col{overflow-y:auto;display:flex;flex-direction:column}
+.lead-detail-col.empty{align-items:center;justify-content:center}
+.empty-state{text-align:center;color:var(--faint)}
+.empty-state-icon{font-size:48px;margin-bottom:12px;opacity:.4}
+.empty-state-text{font-size:14px}
+
+/* Detail content */
+.detail-top{padding:18px 24px 14px;border-bottom:1px solid var(--border);
+  background:var(--white);position:sticky;top:0;z-index:10}
+.detail-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px}
+.detail-avatar{width:48px;height:48px;background:var(--dark);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;color:#fff;
+  font-size:20px;font-weight:700;flex-shrink:0}
+.detail-name-block{flex:1}
+.detail-phone{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--dark);margin-bottom:2px}
+.detail-name-input{font-size:14px;color:var(--soft);background:none;width:100%;
+  border-bottom:1px dashed transparent;padding:1px 0;transition:border .2s}
+.detail-name-input:focus{border-color:var(--border2);color:var(--dark)}
+.detail-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+.fav-btn{font-size:20px;background:none;padding:4px;opacity:.4;transition:all .15s;line-height:1}
+.fav-btn.on{opacity:1;transform:scale(1.1)}
+.last-mod-chip{font-size:11px;color:var(--muted);background:var(--bg);
+  border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-family:var(--mono)}
+
+/* Status bar */
+.status-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.status-select-wrap{position:relative}
+.status-select{appearance:none;background:transparent;font-size:13px;font-weight:700;
+  color:var(--dark);cursor:pointer;padding:6px 24px 6px 10px;border-radius:var(--r-sm);
+  border:1.5px solid var(--border);transition:border .2s;font-family:'DM Sans',sans-serif}
+.status-select:focus{border-color:var(--green2)}
+.status-arrow{position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  pointer-events:none;color:var(--muted);font-size:10px}
+.field-select-inline{appearance:none;background:transparent;font-size:12px;
+  font-weight:600;color:var(--soft);cursor:pointer;padding:4px 20px 4px 8px;
+  border-radius:var(--r-sm);border:1.5px solid var(--border);
+  font-family:'DM Sans',sans-serif;transition:border .2s}
+.field-select-inline:focus{border-color:var(--green2)}
+.field-select-inline:disabled{color:var(--faint);cursor:default}
+
+/* Detail body */
+.detail-body{padding:16px 24px;display:flex;flex-direction:column;gap:0;flex:1;max-width:720px;width:100%}
+.section{margin-bottom:12px}
+.section-label{font-size:11px;font-weight:700;color:var(--muted);
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;
+  display:flex;align-items:center;gap:6px}
+.fields-grid{background:var(--white);border:1.5px solid var(--border);
+  border-radius:var(--r);overflow:hidden}
+.field-row{display:flex;align-items:center;padding:8px 14px;
+  border-bottom:1px solid var(--border);gap:12px}
+.field-row:last-child{border-bottom:none}
+.field-lbl{font-size:11px;color:var(--muted);width:100px;flex-shrink:0;font-weight:600;letter-spacing:.03em}
+.field-val{font-size:13px;color:var(--dark);flex:1;font-family:var(--mono)}
+.field-val.locked{color:var(--faint)}
+.field-input{width:100%;font-size:13px;color:var(--dark);font-family:var(--mono);
+  border-bottom:1px dashed transparent;padding:1px 0;transition:border .2s}
+.field-input:focus{border-color:var(--border2);color:var(--dark)}
+.profile-ta{width:100%;background:var(--white);border:1.5px solid var(--border);
+  border-radius:var(--r);padding:14px 16px;font-size:13px;color:var(--dark);
+  resize:vertical;min-height:80px;line-height:1.6;transition:border .2s}
+.profile-ta:focus{border-color:var(--green2)}
+
+/* Admin messages in detail */
+.admin-note{background:var(--blue-bg);border:1.5px solid var(--blue-border);
+  border-radius:var(--r-sm);padding:12px 14px;margin-bottom:8px}
+.admin-note-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.admin-note-badge{font-size:10px;font-weight:800;color:var(--blue);
+  background:rgba(18,81,163,.1);padding:2px 8px;border-radius:10px;letter-spacing:.06em}
+.admin-note-time{font-size:10px;color:var(--muted);font-family:var(--mono)}
+.admin-note-text{font-size:13px;color:var(--dark);line-height:1.5}
+.admin-note-reply{font-size:11px;color:var(--blue);font-weight:700;
+  background:none;cursor:pointer;margin-top:6px;padding:0}
+
+/* Notes */
+.note-types{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.ntype{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600;
+  background:var(--bg);border:1.5px solid var(--border);color:var(--soft);
+  cursor:pointer;transition:all .15s}
+.ntype.on{background:var(--dark);border-color:var(--dark);color:#fff}
+.note-ta{width:100%;background:var(--white);border:1.5px solid var(--border);
+  border-radius:var(--r);padding:12px 14px;font-size:13px;color:var(--dark);
+  resize:none;height:70px;line-height:1.5;transition:border .2s}
+.note-ta:focus{border-color:var(--green2)}
+.note-item{background:var(--bg);border-radius:var(--r-sm);padding:10px 12px;margin-bottom:6px}
+.note-item-meta{display:flex;gap:8px;align-items:center;margin-bottom:3px}
+.note-item-type{font-size:10px;font-weight:700;color:var(--green2);
+  background:var(--tag);padding:2px 7px;border-radius:8px}
+.note-item-time{font-size:10px;color:var(--faint);font-family:var(--mono)}
+.note-item-text{font-size:12px;color:var(--soft);line-height:1.4}
+
+/* Sale form */
+.sale-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sale-field label{font-size:10px;font-weight:700;color:var(--muted);
+  letter-spacing:.07em;text-transform:uppercase;display:block;margin-bottom:4px}
+.sale-input{width:100%;background:var(--bg);border:1.5px solid var(--border);
+  border-radius:var(--r-sm);padding:9px 12px;font-size:13px;color:var(--dark);
+  font-family:var(--mono);transition:border .2s}
+.sale-input:focus{border-color:var(--green2)}
+.sale-record{background:var(--tag);border:1px solid var(--border2);
+  border-radius:var(--r-sm);padding:10px 12px;margin-bottom:6px}
+.sale-record-title{font-size:12px;font-weight:700;color:var(--green2);margin-bottom:2px}
+.sale-record-detail{font-size:11px;color:var(--soft);font-family:var(--mono)}
+
+/* History */
+.hist-entry{font-size:11px;font-family:var(--mono);color:var(--soft);
+  padding:6px 10px;background:var(--bg);border-radius:6px;margin-bottom:4px;line-height:1.5}
+
+/* Save bar */
+.save-bar{position:sticky;bottom:0;background:var(--white);
+  border-top:2px solid var(--green);padding:12px 24px;
+  display:flex;gap:10px;align-items:center;box-shadow:0 -4px 20px rgba(13,50,27,.08)}
+.save-bar.hidden{display:none}
+.save-btn{flex:1;background:var(--dark);color:#fff;font-weight:700;font-size:14px;
+  padding:12px;border-radius:var(--r);transition:background .15s}
+.save-btn:hover{background:var(--green2)}
+.save-btn:disabled{background:var(--border2);cursor:default}
+.discard-btn{background:none;border:1.5px solid var(--border);color:var(--muted);
+  font-size:13px;font-weight:600;padding:12px 18px;border-radius:var(--r);cursor:pointer}
+
+/* Btn primary */
 .btn-p{background:var(--dark);color:#fff;font-weight:700;font-size:13px;
   padding:11px 20px;border-radius:var(--r);transition:background .15s;cursor:pointer}
 .btn-p:hover{background:var(--green2)}
-.btn-p.full{width:100%;font-size:14px;padding:13px}
-.msg-item{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);
-  padding:14px 18px;margin-bottom:8px}
-.msg-item.unread{border-color:var(--blue);background:var(--blue-bg)}
-.msg-meta{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
-.msg-from{font-size:13px;font-weight:700;color:var(--dark)}
-.msg-role{font-size:10px;background:var(--dark);color:#fff;padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.05em}
-.msg-to{font-size:12px;color:var(--muted)}
-.msg-phone{font-size:11px;background:var(--tag);color:var(--green2);padding:2px 8px;border-radius:10px;font-weight:700}
-.msg-ts{font-size:11px;color:var(--muted);font-family:var(--mono);margin-left:auto}
-.msg-text{font-size:13px;color:var(--text);line-height:1.5;margin-bottom:10px}
-.msg-btns{display:flex;gap:6px}
-.mb{font-size:11px;font-weight:700;padding:6px 12px;border-radius:20px;cursor:pointer}
-.mb-reply{background:var(--dark);color:#fff}
-.mb-del{background:var(--red-bg);color:var(--red)}
-.mb-read{background:var(--bg);border:1px solid var(--border);color:var(--soft)}
 
-/* Report */
-.rpt-filters{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-end:center}
-.rpt-filters .form-in,.rpt-filters .form-sel{margin-bottom:0}
-.export-btn{background:var(--green2);color:#fff;font-weight:700;font-size:13px;
-  padding:10px 18px;border-radius:var(--r);display:inline-flex;align-items:center;gap:6px;margin-bottom:14px}
-.rpt-table{width:100%;border-collapse:collapse;background:var(--white);
-  border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
-.rpt-table th{background:var(--dark);color:#fff;padding:10px 14px;text-align:left;font-size:11px;letter-spacing:.06em}
-.rpt-table td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px}
-.rpt-table tr:last-child td{border-bottom:none}
-.rpt-table tr:hover td{background:var(--bg)}
-.rpt-section{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);
-  padding:20px;margin-bottom:14px}
-.rpt-sec-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
-
-/* PIN modal */
-.modal-ov{display:none;position:fixed;inset:0;background:rgba(13,50,27,.5);z-index:200;
-  align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+/* Modal */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(13,50,27,.5);
+  z-index:200;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
 .modal-ov.open{display:flex}
-.modal{background:var(--white);border-radius:16px;padding:24px;width:min(420px,92vw);box-shadow:0 8px 40px rgba(13,50,27,.2)}
-.modal-title{font-size:15px;font-weight:700;color:var(--dark);margin-bottom:16px}
-.modal-btns{display:flex;gap:10px;margin-top:16px}
-.mb2{flex:1;padding:12px;border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer}
-.mb2-ok{background:var(--dark);color:#fff}
-.mb2-no{background:var(--bg);border:1.5px solid var(--border);color:var(--soft)}
+.modal{background:var(--white);border-radius:16px 16px 0 0;
+  padding:24px 22px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto}
+.modal-title{font-size:15px;font-weight:700;margin-bottom:8px;color:var(--dark)}
+.modal-sub{font-size:13px;color:var(--soft);margin-bottom:14px;line-height:1.5}
+.modal-ta{width:100%;background:var(--bg);border:1.5px solid var(--border);
+  border-radius:var(--r);padding:12px 14px;font-size:13px;color:var(--dark);
+  resize:vertical;min-height:80px;transition:border .2s}
+.modal-ta:focus{border-color:var(--green2)}
+.modal-btns{display:flex;gap:10px;margin-top:14px}
+.mbtn-c{flex:1;padding:13px;border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer}
+.mbtn-ok{background:var(--dark);color:#fff}
+.mbtn-no{background:var(--bg);border:1.5px solid var(--border);color:var(--soft)}
+
+/* Reply modal */
+.reply-modal-ov{display:none;position:fixed;inset:0;background:rgba(13,50,27,.5);
+  z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.reply-modal-ov.open{display:flex}
+.reply-modal{background:var(--white);border-radius:16px;padding:24px;
+  width:min(460px,92vw);box-shadow:var(--shadow-lg)}
 
 /* Toast */
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);
-  background:var(--dark);color:#fff;padding:10px 22px;border-radius:24px;font-size:13px;
-  font-weight:600;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;
-  box-shadow:0 4px 20px rgba(13,50,27,.25)}
+  background:var(--dark);color:#fff;padding:10px 22px;border-radius:24px;
+  font-size:13px;font-weight:600;opacity:0;transition:all .25s;z-index:999;
+  white-space:nowrap;box-shadow:0 4px 20px rgba(13,50,27,.25)}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.err{background:var(--red)}
+
+/* Loading */
 .loading{text-align:center;padding:48px;color:var(--muted)}
-.spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--green);
-  border-radius:50%;animation:spin .6s linear infinite;margin:0 auto 14px}
+.spinner{width:28px;height:28px;border:3px solid var(--border);
+  border-top-color:var(--green);border-radius:50%;
+  animation:spin .6s linear infinite;margin:0 auto 14px}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-@media(max-width:900px){
+/* Mobile */
+@media(max-width:768px){
   .sidebar{transform:translateX(-100%)}
   .sidebar.open{transform:translateX(0)}
   .main{margin-left:0}
-  .overview-bar{grid-template-columns:repeat(3,1fr)}
-  .mgr-grid{grid-template-columns:1fr}
-  .rpt-filters{grid-template-columns:1fr 1fr;gap:8px}
-  .page{padding:16px}
+  .leads-layout{grid-template-columns:1fr;height:auto;margin:0;overflow:visible}
+  .lead-detail-col{display:none}
+  .lead-detail-col.mobile-open{display:flex;position:fixed;inset:0;z-index:60;background:var(--bg);overflow-y:auto}
+  .page{padding:14px 16px}
+  .topbar{padding:12px 16px}
+  .topbar-search{display:none}
+  .dash-grid-top{grid-template-columns:repeat(2,1fr)}
+  .dash-row{grid-template-columns:1fr}
+  .mobile-menu-btn{display:flex}
+  .detail-body{padding:16px}
+  .detail-top{padding:16px 16px 12px}
+  .save-bar{padding:12px 16px}
 }
-.mob-menu{display:none;background:none;font-size:22px;color:var(--dark);padding:4px;margin-right:4px}
-@media(max-width:900px){.mob-menu{display:block}}
-#sbOv{display:none;position:fixed;inset:0;z-index:49;background:rgba(0,0,0,.4)}
+@media(min-width:769px){.mobile-menu-btn{display:none}}
+.mobile-menu-btn{background:none;font-size:22px;color:var(--dark);padding:4px;margin-right:4px}
+.mobile-back-btn{display:none;background:none;font-size:22px;color:var(--dark);padding:4px;margin-right:4px}
+@media(max-width:768px){.mobile-back-btn{display:inline-flex}}
 </style>
 </head>
 <body>
@@ -247,53 +411,64 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none;
 <div id="loginScreen" class="screen active">
   <div class="login-card">
     <div class="login-brand">
-      <div class="login-hex">⬡</div>
-      <div>
-        <div class="login-brand-name">ARYAMINER</div>
-        <div class="login-brand-sub">Admin Portal</div>
-      </div>
+      <div class="login-hexagon">⬡</div>
+      <div><div class="login-brand-text">ARYAMINER</div>
+      <div class="login-brand-sub">Sales Manager Portal</div></div>
     </div>
-    <div class="lbl">Enter your PIN</div>
-    <input id="pinIn" class="pin-in" type="password" inputmode="numeric" maxlength="10" placeholder="• • • •" autocomplete="off">
-    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="login-label">Enter your PIN</div>
+    <input id="pinInput" class="login-pin" type="password" inputmode="numeric" maxlength="10" placeholder="• • • •" autocomplete="off">
+    <button class="login-submit" onclick="doLogin()">Sign In <span>→</span></button>
     <div id="loginErr" class="login-err"></div>
   </div>
 </div>
 
 <!-- APP -->
 <div id="appScreen" class="screen">
+
+  <!-- Sidebar -->
   <div id="sidebar" class="sidebar">
-    <div class="sb-brand">
+    <div class="sidebar-brand">
       <div class="sb-hex">⬡</div>
-      <div><div class="sb-name">ARYAMINER</div><div class="sb-sub">Admin Portal</div></div>
+      <div><div class="sb-brand-name">ARYAMINER</div>
+      <div class="sb-brand-sub">Sales Portal</div></div>
     </div>
-    <div class="sb-admin">
-      <div class="sb-admin-name" id="sbAdminName">—</div>
-      <div class="sb-role" id="sbAdminRole">—</div>
+    <div class="sidebar-manager">
+      <div class="sb-manager-name" id="sbName">—</div>
+      <div class="sb-manager-role">Sales Manager</div>
     </div>
-    <nav class="sb-nav">
-      <div class="nav-section">Overview</div>
-      <div class="nav-i on" onclick="showPage('dashboard',this)"><span class="ni">📊</span>Dashboard</div>
-      <div class="nav-i" onclick="showPage('managers',this)"><span class="ni">👥</span>Managers</div>
-      <div class="nav-section">Communication</div>
-      <div class="nav-i" onclick="showPage('messages',this)">
-        <span class="ni">💬</span>Messages
-        <span class="nb hidden" id="navMsgBadge">0</span>
+    <div class="sidebar-stats" id="sbStats">
+      <div class="sb-stat"><div class="sb-stat-num" id="sbTotal">—</div><div class="sb-stat-lbl">Total</div></div>
+      <div class="sb-stat green"><div class="sb-stat-num" id="sbSale">—</div><div class="sb-stat-lbl">Sales</div></div>
+      <div class="sb-stat amber"><div class="sb-stat-num" id="sbWait">—</div><div class="sb-stat-lbl">Waiting</div></div>
+      <div class="sb-stat red"><div class="sb-stat-num" id="sbLong">—</div><div class="sb-stat-lbl">Long Neg</div></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="showPage('dashboard',this)">
+        <span class="nav-icon">📊</span>Dashboard
       </div>
-      <div class="nav-section">Analysis</div>
-      <div class="nav-i" onclick="showPage('reports',this)"><span class="ni">📈</span>Reports</div>
+      <div class="nav-item" onclick="showPage('leads',this)">
+        <span class="nav-icon">👥</span>My Leads
+        <span class="nav-badge hidden" id="navNewBadge">0</span>
+      </div>
+      <div class="nav-item" onclick="showPage('messages',this)">
+        <span class="nav-icon">💬</span>Messages
+        <span class="nav-badge hidden" id="navMsgBadge">0</span>
+      </div>
     </nav>
-    <div class="sb-footer">
-      <button class="logout" onclick="logout()">← Sign out</button>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="logout()">← Sign out</button>
     </div>
   </div>
 
+  <!-- Main -->
   <div class="main">
     <div class="topbar">
-      <button class="mob-menu" onclick="toggleSb()">☰</button>
-      <div class="topbar-title" id="topTitle">Dashboard</div>
-      <div class="tb-badge hidden" id="tbMsgBadge">0</div>
-      <button class="tb-refresh" onclick="loadData()">↻ Refresh</button>
+      <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-search" id="topbarSearch" style="display:none">
+        <span style="color:var(--faint);font-size:14px">🔍</span>
+        <input placeholder="Search phone or name..." oninput="onSearch(this.value)" id="searchInp">
+      </div>
     </div>
 
     <!-- DASHBOARD -->
@@ -301,438 +476,795 @@ input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none;
       <div class="loading"><div class="spinner"></div>Loading...</div>
     </div>
 
-    <!-- MANAGERS -->
-    <div id="pageManagers" class="page">
-      <div id="mgrGrid" class="mgr-grid"></div>
+    <!-- LEADS -->
+    <div id="pageLeads" class="page" style="padding:0">
+      <div class="leads-layout">
+        <div class="leads-list-col">
+          <div class="leads-list-header">
+            <div class="search-box">
+              <span style="color:var(--faint);font-size:13px">🔍</span>
+              <input placeholder="Search phone or name..." oninput="onSearch(this.value)" id="searchInp2">
+            </div>
+            <div class="filter-chips" id="filterChips">
+              <div class="chip active" onclick="setFilter('',this)">All</div>
+              <div class="chip" onclick="setFilter('__new__',this)">New</div>
+              <div class="chip" onclick="setFilter('__conv__',this)">Conv. Start</div>
+              <div class="chip" onclick="setFilter('waiting',this)">Waiting</div>
+              <div class="chip" onclick="setFilter('long negotiation',this)">Long Neg.</div>
+              <div class="chip" onclick="setFilter('sale',this)">Sale</div>
+              <div class="chip" onclick="setFilter('lost - back to marketing',this)">Lost</div>
+              <div class="chip" onclick="setFilter('no responded',this)">No Resp.</div>
+            </div>
+          </div>
+          <div class="leads-scroll" id="leadsList"></div>
+        </div>
+        <div id="leadDetail" class="lead-detail-col empty">
+          <div class="empty-state">
+            <div class="empty-state-icon">👆</div>
+            <div class="empty-state-text">Select a lead to view details</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- MESSAGES -->
     <div id="pageMessages" class="page">
-      <div class="compose">
-        <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:14px">📨 Send Message to Manager</div>
-        <div class="form-lbl">To Manager</div>
-        <select id="msgTo" class="form-sel"></select>
-        <div class="form-lbl">Lead Phone (optional)</div>
-        <input id="msgPhone" class="form-in" placeholder="e.g. 2348012345678">
-        <div class="form-lbl">Message</div>
-        <textarea id="msgTa" class="form-ta" placeholder="Write instruction or note..."></textarea>
-        <button class="btn-p full" onclick="sendMsg()">Send Message</button>
-      </div>
-      <div id="msgList"></div>
-    </div>
-
-    <!-- REPORTS -->
-    <div id="pageReports" class="page">
-      <div class="rpt-filters">
-        <div>
-          <div class="form-lbl">Manager</div>
-          <select id="rptMgr" class="form-sel" style="margin-bottom:0"></select>
-        </div>
-        <div>
-          <div class="form-lbl">From</div>
-          <input id="rptFrom" class="form-in" type="date" style="margin-bottom:0">
-        </div>
-        <div>
-          <div class="form-lbl">To</div>
-          <input id="rptTo" class="form-in" type="date" style="margin-bottom:0">
-        </div>
-        <div style="display:flex;align-items:flex-end">
-          <button class="btn-p" onclick="runReport()">Generate</button>
-        </div>
-      </div>
-      <div id="rptOut"></div>
+      <div id="msgsContent"><div class="loading"><div class="spinner"></div></div></div>
     </div>
   </div>
 </div>
 
-<!-- PIN MODAL -->
-<div id="pinModal" class="modal-ov">
+<!-- NOTE MODAL -->
+<div id="noteModal" class="modal-ov">
   <div class="modal">
-    <div class="modal-title" id="pinModalTitle">Change PIN</div>
-    <div class="form-lbl">New PIN</div>
-    <input id="pinNewVal" class="form-in" type="text" placeholder="e.g. 4567" maxlength="10">
+    <div class="modal-title">Note Required</div>
+    <div class="modal-sub" id="noteModalSub"></div>
+    <textarea id="noteModalTa" class="modal-ta" placeholder="Write your reason..."></textarea>
     <div class="modal-btns">
-      <button class="mb2 mb2-no" onclick="closePinModal()">Cancel</button>
-      <button class="mb2 mb2-ok" onclick="savePinModal()">Save</button>
+      <button class="mbtn-c mbtn-no" onclick="closeNoteModal()">Cancel</button>
+      <button class="mbtn-c mbtn-ok" onclick="confirmNoteModal()">Confirm</button>
     </div>
   </div>
 </div>
 
-<div id="sbOv" onclick="toggleSb()"></div>
+<!-- REPLY MODAL -->
+<div id="replyModal" class="reply-modal-ov">
+  <div class="reply-modal">
+    <div style="font-size:15px;font-weight:700;margin-bottom:12px;color:var(--dark)">Reply to Admin</div>
+    <textarea id="replyTa" class="modal-ta" style="height:80px" placeholder="Write your reply..."></textarea>
+    <div class="modal-btns">
+      <button class="mbtn-c mbtn-no" onclick="closeReplyModal()">Cancel</button>
+      <button class="mbtn-c mbtn-ok" onclick="submitReply()">Send Reply</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast" class="toast"></div>
+<div id="sidebarOverlay" style="display:none;position:fixed;inset:0;z-index:49;background:rgba(0,0,0,.4)" onclick="toggleSidebar()"></div>
 
 <script>
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxThPTTON7rjIYPiMdO9M0PP3CBxS7iUQIKAKHG8UJEe3A2o2zW-EtuHegwVoACJFGQ/exec";
 
-let PIN="", ADMIN_NAME="", ADMIN_ROLE="", DASH_DATA=null, REPLY_TO=null;
-let PENDING_PIN_MGR="";
+// ── State ────────────────────────────────────────────────────
+let PIN="", MANAGER_NAME="", ALL_LEADS=[], CURRENT_FILTER="";
+let DETAIL_LEAD=null, PENDING_CHANGES={}, PENDING_STATUS=null;
+let ADMIN_MSGS=[], REPLY_MSG_ID=null, REPLY_LEAD_PHONE=null;
+let selectedNoteType="Call";
 
+// ── Status config ────────────────────────────────────────────
+const ALLOWED_NEXT={
+  "":["Waiting","No Responded"],"new":["Waiting","No Responded"],
+  "waiting":["Sale","Long Negotiation","Lost - Back to marketing","Bad Lead - Back to marketing","No Responded"],
+  "long negotiation":["Sale","Lost - Back to marketing","Bad Lead - Back to marketing"],
+  "sale":[],"lost - back to marketing":[],"bad lead - back to marketing":[],"no responded":[]
+};
+const NOTE_REQUIRED=["lost - back to marketing","bad lead - back to marketing"];
+const STATUS_CFG={
+  "":             {label:"NEW",     cls:"badge-new",  row:"lc-new"},
+  "new":          {label:"NEW",     cls:"badge-new",  row:"lc-new"},
+  "conversation start":{label:"CONV.",cls:"badge-cs", row:"lc-cs"},
+  "waiting":      {label:"WAITING", cls:"badge-wait", row:"lc-wait"},
+  "long negotiation":{label:"LONG NEG",cls:"badge-long",row:"lc-long"},
+  "sale":         {label:"SALE ✓",  cls:"badge-sale", row:"lc-sale"},
+  "lost - back to marketing":    {label:"LOST",    cls:"badge-closed",row:"lc-closed"},
+  "bad lead - back to marketing":{label:"BAD LEAD",cls:"badge-closed",row:"lc-closed"},
+  "no responded": {label:"NO RESP", cls:"badge-closed",row:"lc-closed"},
+};
+const FOLLOWUP_OPTS=["","Conversation Start","No Reply — FU 1","No Reply — FU 2","No Reply — Called"];
+const LEADLEVEL_OPTS=["","Beginner","User-Intermediate","Reseller","Farm-Company"];
+const CALL_OPTS=["","No Call Invitation","Call Invited - No Response","Call Scheduled","Call Completed","Call Failed"];
+
+// ── API ──────────────────────────────────────────────────────
 async function api(p){
   const r=await fetch(SCRIPT_URL+"?data="+encodeURIComponent(JSON.stringify(p)));
   return r.json();
 }
 
-// Auth
+// ── Auth ─────────────────────────────────────────────────────
 async function doLogin(){
-  const pin=document.getElementById("pinIn").value.trim();
+  const pin=document.getElementById("pinInput").value.trim();
   if(!pin) return;
   const err=document.getElementById("loginErr");
   err.textContent="Checking...";
   const res=await api({action:"login",pin});
   if(res.ok){
-    PIN=pin; ADMIN_NAME=res.name; ADMIN_ROLE=res.role;
+    PIN=pin; MANAGER_NAME=res.managerName;
     err.textContent="";
     showScreen("appScreen");
-    document.getElementById("sbAdminName").textContent=ADMIN_NAME;
-    document.getElementById("sbAdminRole").textContent=res.role.toUpperCase();
-    loadData();
+    document.getElementById("sbName").textContent=MANAGER_NAME;
+    loadAll();
   } else {
     err.textContent=res.error||"Wrong PIN";
-    document.getElementById("pinIn").value="";
+    document.getElementById("pinInput").value="";
   }
 }
-function logout(){PIN="";ADMIN_NAME="";showScreen("loginScreen");document.getElementById("pinIn").value="";}
-document.getElementById("pinIn").addEventListener("keydown",e=>{if(e.key==="Enter")doLogin()});
+function logout(){PIN="";MANAGER_NAME="";ALL_LEADS=[];showScreen("loginScreen");document.getElementById("pinInput").value="";}
+document.getElementById("pinInput").addEventListener("keydown",e=>{if(e.key==="Enter")doLogin()});
 function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");}
 
-// Navigation
-function showPage(id,el){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.querySelectorAll(".nav-i").forEach(n=>n.classList.remove("on"));
-  document.getElementById("page"+id.charAt(0).toUpperCase()+id.slice(1)).classList.add("active");
-  if(el) el.classList.add("on");
-  const titles={dashboard:"Dashboard",managers:"Managers",messages:"Messages",reports:"Reports"};
-  document.getElementById("topTitle").textContent=titles[id]||id;
-  if(id==="messages") loadMessages();
-  if(id==="managers"&&DASH_DATA) renderManagers(DASH_DATA.managers||[]);
-  document.getElementById("sidebar").classList.remove("open");
-  document.getElementById("sbOv").style.display="none";
-}
-function toggleSb(){
-  const sb=document.getElementById("sidebar"),ov=document.getElementById("sbOv");
-  const open=sb.classList.contains("open");
-  sb.classList.toggle("open",!open);
-  ov.style.display=open?"none":"block";
-}
-
-// Load data
-async function loadData(){
-  const res=await api({action:"getDashboard",pin:PIN});
-  if(!res.ok){showToast(res.error,true);return;}
-  DASH_DATA=res;
-  renderDashboard(res);
-  // Msg badge
-  const mb=document.getElementById("navMsgBadge"),tb=document.getElementById("tbMsgBadge");
-  if(res.unreadMessages>0){mb.textContent=res.unreadMessages;mb.classList.remove("hidden");tb.textContent=res.unreadMessages;tb.classList.remove("hidden");}
-  else{mb.classList.add("hidden");tb.classList.add("hidden");}
-  populateSelects(res.managers||[]);
+// ── Load all ─────────────────────────────────────────────────
+async function loadAll(){
+  const [leadsRes, msgsRes] = await Promise.all([
+    api({action:"getLeads",pin:PIN}),
+    api({action:"getAdminMessages",pin:PIN})
+  ]);
+  if(leadsRes.ok){
+    ALL_LEADS=leadsRes.leads||[];
+    updateSidebarStats(leadsRes.stats);
+    renderDashboard(leadsRes.stats, leadsRes.leads);
+    renderLeads();
+    const nb=document.getElementById("navNewBadge");
+    const newCount=(leadsRes.leads||[]).filter(l=>{
+      const p=String(l.phone||"").replace(/[^0-9]/g,"");
+      return p.length>4&&(!String(l.status||"").trim()||String(l.status).toLowerCase()==="new");
+    }).length;
+    if(newCount>0){nb.textContent=newCount;nb.classList.remove("hidden");}
+    else nb.classList.add("hidden");
+  }
+  if(msgsRes.ok){
+    ADMIN_MSGS=msgsRes.messages||[];
+    const mb=document.getElementById("navMsgBadge");
+    if(msgsRes.unread>0){mb.textContent=msgsRes.unread;mb.classList.remove("hidden");}
+    else mb.classList.add("hidden");
+  }
 }
 
-// Dashboard
-function renderDashboard(res){
-  const managers=res.managers||[];
+// ── Sidebar stats ────────────────────────────────────────────
+function updateSidebarStats(s){
+  if(!s) return;
+  document.getElementById("sbTotal").textContent=s.total||0;
+  document.getElementById("sbSale").textContent=s.sale||0;
+  document.getElementById("sbWait").textContent=s.waiting||0;
+  document.getElementById("sbLong").textContent=s.longNegotiation||0;
+}
+
+// ── Dashboard ─────────────────────────────────────────────────
+function renderDashboard(s, leads){
+  if(!s) return;
   const now=new Date();
-  const totals=managers.reduce((a,m)=>({
-    total:a.total+(m.stats.total||0),new:a.new+(m.stats.new||0),
-    waiting:a.waiting+(m.stats.waiting||0),longNeg:a.longNeg+(m.stats.longNeg||0),sale:a.sale+(m.stats.sale||0)
-  }),{total:0,new:0,waiting:0,longNeg:0,sale:0});
+  const validLeads=(leads||[]).filter(l=>String(l.phone||"").replace(/[^0-9]/g,"").length>4);
+  const newLeads=validLeads.filter(l=>!String(l.status||"").trim()||String(l.status).toLowerCase()==="new");
+  const waitingLeads=validLeads.filter(l=>String(l.status||"").toLowerCase().trim()==="waiting").map(l=>{
+    const d=l.date?Math.floor((now-new Date(l.date))/86400000):null;
+    return {...l,daysIn:d};
+  }).sort((a,b)=>(b.daysIn||0)-(a.daysIn||0));
+  const oldWaiting=waitingLeads.filter(l=>l.daysIn>=7);
+  const attnLeads=validLeads.filter(l=>needsAttention(l));
+  const unreadMsgs=ADMIN_MSGS.filter(m=>String(m.read||"").toLowerCase()!=="yes");
+  const leadsForPhone=(phone)=>ADMIN_MSGS.filter(m=>m.leadPhone===phone);
 
-  // Collect all urgent items across managers
-  const allWaiting7=[],allLongNeg14=[];
-  managers.forEach(m=>{
-    (m.stats.waitingOld||[]).forEach(l=>allWaiting7.push({...l,mgr:m.name}));
-    (m.stats.longNegOld||[]).forEach(l=>allLongNeg14.push({...l,mgr:m.name}));
-  });
+  let html="";
 
-  let html=`
-    <div class="overview-bar">
-      <div class="ov-card c-blue"><div class="ov-num">${totals.total}</div><div class="ov-lbl">Total Leads</div></div>
-      <div class="ov-card c-amber"><div class="ov-num">${totals.new}</div><div class="ov-lbl">New</div></div>
-      <div class="ov-card c-amber"><div class="ov-num">${totals.waiting}</div><div class="ov-lbl">Waiting</div></div>
-      <div class="ov-card c-red"><div class="ov-num">${totals.longNeg}</div><div class="ov-lbl">Long Neg.</div></div>
-      <div class="ov-card c-green"><div class="ov-num">${totals.sale}</div><div class="ov-lbl">Total Sales</div></div>
-    </div>`;
-
-  // Alerts
-  if(allWaiting7.length>0||allLongNeg14.length>0){
-    html+=`<div class="alert-panel">
-      <div class="ap-title">🔴 Requires Attention (${allWaiting7.length+allLongNeg14.length} leads)</div>
-      ${allLongNeg14.slice(0,3).map(l=>`
-        <div class="ap-item">
-          <div class="ap-days">${l.days}d</div>
-          <div class="ap-info">
-            <div class="ap-name">${esc(l.name||l.phone)} ${l.profile?`— ${esc(l.profile.substring(0,40))}...`:""}</div>
-            <div class="ap-mgr">Long Neg. · Manager: ${l.mgr}${l.budget?` · ${l.budget}`:""}</div>
-          </div>
-        </div>`).join("")}
-      ${allWaiting7.slice(0,3).map(l=>`
-        <div class="ap-item">
-          <div class="ap-days">${l.days}d</div>
-          <div class="ap-info">
-            <div class="ap-name">${esc(l.name||l.phone)}</div>
-            <div class="ap-mgr">Waiting · Manager: ${l.mgr}</div>
-          </div>
-        </div>`).join("")}
+  // Pressure banner
+  if(oldWaiting.length>0){
+    html+=`<div class="pressure-banner">
+      <div class="pb-icon">🔴</div>
+      <div><div class="pb-title">${oldWaiting.length} lead(s) waiting 7+ days</div>
+      <div class="pb-body">These need a decision — move to Long Neg., Sale, Lost or Bad Lead.</div></div>
+      <button class="pb-action" onclick="goToFilter('waiting')">View →</button>
     </div>`;
   }
 
-  // Manager comparison cards
-  html+=`<div class="mgr-grid">`;
-  managers.forEach(m=>{
-    const s=m.stats||{};
-    const alerts=[];
-    if((s.waitingOld||[]).length) alerts.push(`<span class="al al-r">⏰ ${s.waitingOld.length} waiting 7d+</span>`);
-    if((s.longNegOld||[]).length) alerts.push(`<span class="al al-a">🔴 ${s.longNegOld.length} long neg 14d+</span>`);
-    if(s.new>5) alerts.push(`<span class="al al-b">📥 ${s.new} new</span>`);
-    const monthly=s.monthlyCounts||{};
-    const mkeys=Object.keys(monthly).sort().slice(-5);
-    const maxV=Math.max(...mkeys.map(k=>monthly[k]),1);
-    html+=`<div class="mgr-card" onclick="openMgrDetail('${m.name}')">
-      <div class="mgr-card-head">
-        <div class="mgr-avatar">${m.name.charAt(0).toUpperCase()}</div>
-        <div><div class="mgr-name">${m.name}</div><div class="mgr-email">${m.email||""}</div></div>
-        <div class="mgr-wr">
-          <div class="mgr-wr-num">${s.winRate||0}%</div>
-          <div class="mgr-wr-lbl">Win Rate</div>
+  // Top stats
+  html+=`<div class="dash-grid-top">
+    <div class="dash-stat-card blue ds-color-blue" onclick="goToFilter('__new__')">
+      <div class="ds-num">${s.new||0}</div><div class="ds-lbl">New Leads</div><div class="ds-arrow">→</div>
+    </div>
+    <div class="dash-stat-card amber ds-color-amber" onclick="goToFilter('waiting')">
+      <div class="ds-num">${s.waiting||0}</div><div class="ds-lbl">Waiting</div><div class="ds-arrow">→</div>
+    </div>
+    <div class="dash-stat-card red ds-color-red" onclick="goToFilter('long negotiation')">
+      <div class="ds-num">${s.longNegotiation||0}</div><div class="ds-lbl">Long Neg.</div><div class="ds-arrow">→</div>
+    </div>
+    <div class="dash-stat-card green ds-color-green" onclick="goToFilter('sale')">
+      <div class="ds-num">${s.sale||0}</div><div class="ds-lbl">Sales</div><div class="ds-arrow">→</div>
+    </div>
+  </div>`;
+
+  // Two column row
+  html+=`<div class="dash-row">`;
+
+  // Waiting panel
+  html+=`<div class="dash-panel">
+    <div class="dash-panel-title">⏳ Waiting for Decision
+      ${waitingLeads.length>4?`<a onclick="goToFilter('waiting')">View all ${waitingLeads.length} →</a>`:""}
+    </div>
+    ${waitingLeads.length===0?`<div style="color:var(--faint);font-size:13px">No waiting leads 👍</div>`:""}
+    ${waitingLeads.slice(0,5).map(l=>{
+      const cls=l.daysIn>=7?"w-red":l.daysIn>=3?"w-amber":"w-green";
+      return `<div class="w-item" onclick="openLeadDetail(${l.rowIndex})">
+        <div class="w-days ${cls}">
+          <div class="w-days-num">${l.daysIn===null?"?":l.daysIn}</div>
+          <div class="w-days-lbl">days</div>
         </div>
-      </div>
-      <div class="mgr-card-body">
-        <div class="mgr-stats">
-          <div class="ms"><div class="ms-n">${s.total||0}</div><div class="ms-l">Total</div></div>
-          <div class="ms wait"><div class="ms-n">${s.waiting||0}</div><div class="ms-l">Waiting</div></div>
-          <div class="ms long"><div class="ms-n">${s.longNeg||0}</div><div class="ms-l">Long Neg</div></div>
-          <div class="ms sale"><div class="ms-n">${s.sale||0}</div><div class="ms-l">Sale</div></div>
+        <div class="w-info">
+          <div class="w-name">${esc(l.name||"No name")}</div>
+          <div class="w-phone">${l.phone}</div>
         </div>
-        ${alerts.length?`<div class="mgr-alerts">${alerts.join("")}</div>`:""}
-        ${mkeys.length?`<div class="mgr-chart">
-          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Monthly Volume</div>
-          <div class="bar-row">
-            ${mkeys.map(k=>{const h=Math.max(Math.round((monthly[k]/maxV)*40),2);return `<div class="bar-c">
-              <div class="bar-v">${monthly[k]}</div>
-              <div class="bar-b" style="height:${h}px"></div>
-              <div class="bar-l">${k.slice(5)}</div>
-            </div>`;}).join("")}
-          </div>
-        </div>`:""}
-      </div>
-    </div>`;
-  });
-  html+=`</div>`;
+      </div>`;
+    }).join("")}
+  </div>`;
+
+  // Admin messages + new leads
+  html+=`<div class="dash-panel">`;
+  if(unreadMsgs.length>0){
+    html+=`<div class="dash-panel-title">📨 Messages from Admin <span style="color:var(--blue)">(${unreadMsgs.length})</span></div>`;
+    unreadMsgs.slice(0,3).map(m=>{
+      html+=`<div class="admin-msg-item" onclick="openMsgDetail(${m.rowIndex})">
+        <div class="admin-msg-from">From: ${m.fromName}${m.leadPhone?` <span class="admin-msg-phone">· ${m.leadPhone}</span>`:""}</div>
+        <div class="admin-msg-text">${esc(m.message)}</div>
+        <div class="admin-msg-time">${m.timestamp}</div>
+      </div>`;
+    });
+    if(unreadMsgs.length>3) html+=`<a style="font-size:12px;color:var(--blue);cursor:pointer" onclick="showPage('messages',document.querySelectorAll('.nav-item')[2])">View all ${unreadMsgs.length} messages →</a>`;
+    html+=`<div style="margin-top:16px">`;
+  }
+  html+=`<div class="dash-panel-title" style="margin-top:0">🆕 New Leads</div>
+    ${newLeads.length===0?`<div style="color:var(--faint);font-size:13px">No new leads</div>`:""}
+    ${newLeads.slice(0,4).map(l=>`
+      <div class="w-item" onclick="openLeadDetail(${l.rowIndex})">
+        <div class="w-days" style="background:var(--blue-bg);color:var(--blue);width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-direction:column">
+          <div style="font-size:11px;font-weight:800;letter-spacing:.04em">NEW</div>
+        </div>
+        <div class="w-info">
+          <div class="w-name">${esc(l.name||"No name")}</div>
+          <div class="w-phone">${l.phone}</div>
+        </div>
+      </div>`).join("")}
+    ${unreadMsgs.length>0?"</div>":""}
+  </div></div>`;
+
+  // More stats row
+  const closed=(s.lost||0)+(s.badLead||0)+(s.noResponded||0);
+  const winRate=closed>0?Math.round(((s.sale||0)/(s.sale+closed))*100):0;
+  html+=`<div class="dash-panel" style="margin-bottom:0">
+    <div class="dash-panel-title">📈 Performance</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+      ${[
+        ["Win Rate",winRate+"%","color:var(--green2)"],
+        ["No Resp.",s.noResponded||0,"color:var(--muted)"],
+        ["Lost",s.lost||0,"color:var(--red)"],
+        ["Bad Lead",s.badLead||0,"color:var(--muted)"]
+      ].map(([l,v,c])=>`<div style="background:var(--bg);border-radius:var(--r-sm);padding:12px;text-align:center">
+        <div style="font-family:var(--mono);font-size:20px;font-weight:700;${c}">${v}</div>
+        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:3px">${l}</div>
+      </div>`).join("")}
+    </div>
+  </div>`;
+
   document.getElementById("pageDashboard").innerHTML=html;
 }
 
-function renderManagers(managers){
-  document.getElementById("mgrGrid").innerHTML=managers.map(m=>{
-    const s=m.stats||{};
-    return `<div class="mgr-card">
-      <div class="mgr-card-head">
-        <div class="mgr-avatar">${m.name.charAt(0).toUpperCase()}</div>
-        <div><div class="mgr-name">${m.name}</div><div class="mgr-email">${m.email||""}</div></div>
-        <div class="mgr-wr"><div class="mgr-wr-num">${s.winRate||0}%</div><div class="mgr-wr-lbl">Win Rate</div></div>
-      </div>
-      <div class="mgr-card-body">
-        <div class="mgr-stats">
-          <div class="ms"><div class="ms-n">${s.total||0}</div><div class="ms-l">Total</div></div>
-          <div class="ms wait"><div class="ms-n">${s.waiting||0}</div><div class="ms-l">Waiting</div></div>
-          <div class="ms long"><div class="ms-n">${s.longNeg||0}</div><div class="ms-l">Long Neg</div></div>
-          <div class="ms sale"><div class="ms-n">${s.sale||0}</div><div class="ms-l">Sale</div></div>
+// ── Leads list ───────────────────────────────────────────────
+function renderLeads(){
+  const fil=CURRENT_FILTER;
+  let leads=ALL_LEADS.filter(l=>String(l.phone||"").replace(/[^0-9]/g,"").length>4);
+  if(fil==="__new__") leads=leads.filter(l=>!String(l.status||"").trim()||String(l.status).toLowerCase()==="new");
+  else if(fil==="__conv__") leads=leads.filter(l=>String(l.followup||"").trim()==="Conversation Start");
+  else if(fil) leads=leads.filter(l=>String(l.status||"").toLowerCase().trim()===fil);
+  const el=document.getElementById("leadsList");
+  if(!leads.length){el.innerHTML=`<div style="padding:32px;text-align:center;color:var(--faint);font-size:13px">No leads found</div>`;return;}
+  el.innerHTML=leads.map(l=>{
+    const s=String(l.status||"").toLowerCase().trim();
+    const cfg=STATUS_CFG[s]||STATUS_CFG[""];
+    const attn=needsAttention(l);
+    const lastAct=lastActivityLabel(l);
+    const isFav=String(l.favorite||"").toLowerCase()==="yes";
+    return `<div class="lead-row ${cfg.row}${DETAIL_LEAD&&DETAIL_LEAD.rowIndex===l.rowIndex?" selected":""}" onclick="openLeadDetail(${l.rowIndex})">
+      <div class="lr-info">
+        <div class="lr-top">
+          <span class="lr-phone">${isFav?"⭐ ":""}${l.phone||"—"}</span>
+          <span class="lr-badge ${cfg.cls}">${cfg.label}</span>
         </div>
-        <div style="display:flex;gap:8px;margin-top:4px">
-          <button class="btn-p" style="flex:1;font-size:12px;padding:8px" onclick="sendMsgTo('${m.name}')">Send Note</button>
-          ${ADMIN_ROLE==="owner"?`<button class="btn-p" style="font-size:12px;padding:8px;background:var(--amber-bg);color:var(--amber);border:1.5px solid var(--amber-border)" onclick="editPin('${m.name}','${m.pin||""}')">🔑 ${m.pin||"***"}</button>`:""}
+        <div class="lr-name">${esc(l.name||"")}</div>
+        ${l.profile?`<div class="lr-profile">${esc(l.profile)}</div>`:`<div class="lr-profile" style="font-style:italic">No profile</div>`}
+        <div class="lr-bottom">
+          ${l.followup?`<span class="lr-tag">${l.followup}</span>`:""}
+          ${l.leadlevel?`<span class="lr-tag">${l.leadlevel}</span>`:""}
+          <span class="lr-time">${attn?`⚠ ${lastAct}`:lastAct}</span>
         </div>
       </div>
     </div>`;
   }).join("");
 }
 
-// Manager detail (open in modal or navigate)
-async function openMgrDetail(name){
-  const res=await api({action:"getManagerDetail",pin:PIN,managerName:name});
-  if(!res.ok){showToast(res.error,true);return;}
-  // Navigate to managers page and show details
-  showPage("managers",document.querySelectorAll(".nav-i")[1]);
-  renderManagers(DASH_DATA.managers||[]);
+function setFilter(f,el){
+  CURRENT_FILTER=f;
+  document.querySelectorAll(".chip").forEach(c=>c.classList.remove("active"));
+  if(el) el.classList.add("active");
+  renderLeads();
+}
+function goToFilter(f){
+  showPage("leads",document.querySelectorAll(".nav-item")[1]);
+  setTimeout(()=>{
+    CURRENT_FILTER=f;
+    document.querySelectorAll(".chip").forEach(c=>c.classList.remove("active"));
+    const target=[...document.querySelectorAll(".chip")].find(c=>c.getAttribute("onclick")&&c.getAttribute("onclick").includes("'"+f+"'"));
+    if(target) target.classList.add("active");
+    renderLeads();
+  },50);
 }
 
-// Messages
-function populateSelects(managers){
-  const opts=managers.map(m=>`<option value="${m.name}">${m.name}</option>`).join("");
-  ["msgTo","rptMgr"].forEach(id=>{
-    const el=document.getElementById(id);
-    if(!el) return;
-    if(id==="rptMgr") el.innerHTML=`<option value="all">All Managers</option>`+opts;
-    else el.innerHTML=opts;
-  });
-  const now=new Date();
-  const y=now.getFullYear(),mo=String(now.getMonth()+1).padStart(2,"0"),d=String(now.getDate()).padStart(2,"0");
-  const f=document.getElementById("rptFrom"),t=document.getElementById("rptTo");
-  if(f) f.value=`${y}-${mo}-01`;
-  if(t) t.value=`${y}-${mo}-${d}`;
+let searchTimer;
+function onSearch(v){
+  clearTimeout(searchTimer);
+  if(!v){renderLeads();return;}
+  searchTimer=setTimeout(async()=>{
+    const res=await api({action:"search",pin:PIN,query:v});
+    if(!res.ok) return;
+    const el=document.getElementById("leadsList");
+    if(!res.leads.length){el.innerHTML=`<div style="padding:32px;text-align:center;color:var(--faint)">No results</div>`;return;}
+    el.innerHTML=res.leads.map(l=>{
+      const s=String(l.status||"").toLowerCase().trim();
+      const cfg=STATUS_CFG[s]||STATUS_CFG[""];
+      return `<div class="lead-row ${cfg.row}" onclick="openLeadDetail(${l.rowIndex})">
+        <div class="lr-info">
+          <div class="lr-top"><span class="lr-phone">${l.phone||"—"}</span><span class="lr-badge ${cfg.cls}">${cfg.label}</span></div>
+          <div class="lr-name">${esc(l.name||"")}</div>
+        </div>
+      </div>`;
+    }).join("");
+  },350);
+}
+document.getElementById("searchInp").addEventListener("input",e=>onSearch(e.target.value));
+document.getElementById("searchInp2").addEventListener("input",e=>onSearch(e.target.value));
+
+// ── Lead Detail ──────────────────────────────────────────────
+function openLeadDetail(rowIndex){
+  DETAIL_LEAD=ALL_LEADS.find(l=>l.rowIndex===rowIndex);
+  if(!DETAIL_LEAD) return;
+  PENDING_CHANGES={};
+  renderDetail();
+  // Highlight in list
+  document.querySelectorAll(".lead-row").forEach(r=>r.classList.remove("selected"));
+  const rows=[...document.querySelectorAll(".lead-row")];
+  const idx=ALL_LEADS.filter(l=>String(l.phone||"").replace(/[^0-9]/g,"").length>4).findIndex(l=>l.rowIndex===rowIndex);
+  if(rows[idx]) rows[idx].classList.add("selected");
+  // Mobile: show detail
+  const dc=document.getElementById("leadDetail");
+  dc.classList.remove("empty");
+  dc.classList.add("mobile-open");
 }
 
-async function loadMessages(){
-  const el=document.getElementById("msgList");
-  el.innerHTML=`<div class="loading"><div class="spinner"></div></div>`;
-  const res=await api({action:"getMessages",pin:PIN});
-  if(!res.ok){el.innerHTML=`<div style="color:var(--red)">${res.error}</div>`;return;}
-  const msgs=(res.messages||[]).sort((a,b)=>b.timestamp>a.timestamp?1:-1);
-  if(!msgs.length){el.innerHTML=`<div style="padding:24px;text-align:center;color:var(--muted)">No messages</div>`;return;}
-  el.innerHTML=msgs.map(m=>`
-    <div class="msg-item ${m.read==="Yes"?"":"unread"}">
-      <div class="msg-meta">
-        <span class="msg-from">${m.fromName}</span>
-        <span class="msg-role">${m.fromRole}</span>
-        <span class="msg-to">→ ${m.toManager}</span>
-        ${m.leadPhone?`<span class="msg-phone">📱 ${m.leadPhone}</span>`:""}
-        <span class="msg-ts">${m.timestamp}</span>
+function renderDetail(){
+  const l=DETAIL_LEAD;
+  const status=String(l.status||"").toLowerCase().trim();
+  const cfg=STATUS_CFG[status]||STATUS_CFG[""];
+  const next=ALLOWED_NEXT[status]||[];
+  const isClosed=!next.length;
+  const isSale=status==="sale";
+  const fuLocked=!(!status||status==="new");
+
+  // Get admin messages for this lead
+  const leadMsgs=ADMIN_MSGS.filter(m=>m.leadPhone===l.phone);
+
+  const notes=parseNotes(l.notedata);
+  const sales=parseSales(l.salesdata);
+
+  const dc=document.getElementById("leadDetail");
+  dc.innerHTML=`
+    <div class="detail-top">
+      <div class="detail-header">
+        <div class="detail-avatar">${(l.name||l.phone||"?").charAt(0).toUpperCase()}</div>
+        <div class="detail-name-block">
+          <div class="detail-phone">${l.phone||"—"}</div>
+          <input class="detail-name-input" id="detName" value="${esc(l.name||"")}"
+            placeholder="Customer name" oninput="markDirty('name',this.value)">
+        </div>
+        <div class="detail-actions">
+          <button class="fav-btn ${String(l.favorite||"").toLowerCase()==="yes"?"on":""}"
+            onclick="toggleFav()" title="Favorite">${String(l.favorite||"").toLowerCase()==="yes"?"⭐":"☆"}</button>
+          <button class="mobile-back-btn" onclick="closeDetailMobile()">✕</button>
+        </div>
       </div>
-      <div class="msg-text">${esc(m.message)}</div>
-      <div class="msg-btns">
-        <button class="mb mb-reply" onclick="replyMsg('${m.id}','${m.toManager}','${m.leadPhone||""}')">↩ Reply</button>
-        ${ADMIN_ROLE==="owner"?`<button class="mb mb-del" onclick="delMsg(${m.rowIndex})">Delete</button>`:""}
-        ${m.read!=="Yes"?`<button class="mb mb-read" onclick="markRead(${m.rowIndex},this)">Mark Read</button>`:""}
+      <div class="status-bar">
+        ${isClosed
+          ? `<span class="lr-badge ${cfg.cls}" style="font-size:12px;padding:6px 14px">${cfg.label}</span>`
+          : `<div class="status-select-wrap">
+              <select class="status-select" onchange="changeStatus(this.value,this)">
+                <option value="${l.status||""}">${l.status||"— New —"}</option>
+                ${next.map(o=>`<option value="${o}">${o}</option>`).join("")}
+              </select>
+              <span class="status-arrow">▼</span>
+            </div>`}
+        ${fuLocked
+          ? `<span style="font-size:11px;color:var(--faint)">${l.followup||"No follow-up"}</span>`
+          : `<select class="field-select-inline" onchange="markDirty('followup',this.value)">
+              ${FOLLOWUP_OPTS.map(o=>`<option value="${o}" ${o===l.followup?"selected":""}>${o||"Follow Up Stage"}</option>`).join("")}
+            </select>`}
+        <select class="field-select-inline" onchange="markDirty('leadlevel',this.value)" ${!status||status==="new"?"disabled":""}>
+          ${LEADLEVEL_OPTS.map(o=>`<option value="${o}" ${o===l.leadlevel?"selected":""}>${o||"Lead Level"}</option>`).join("")}
+        </select>
+        ${l.lastModified?`<span class="last-mod-chip">🕐 ${l.lastModified}</span>`:""}
+      </div>
+    </div>
+
+    <div class="detail-body" id="detailScrollBody">
+
+      ${l.lastChangeDesc?`<div class="section">
+        <div style="background:var(--tag);border:1px solid var(--border2);border-radius:var(--r-sm);padding:10px 14px;font-size:12px;color:var(--soft)">
+          <strong>Last change:</strong> ${esc(l.lastChangeDesc)}
+        </div>
+      </div>`:""}
+
+      ${leadMsgs.length?`
+      <div class="section">
+        <div class="section-label">📨 Admin Notes</div>
+        ${leadMsgs.map(m=>`
+          <div class="admin-note">
+            <div class="admin-note-header">
+              <span class="admin-note-badge">ADMIN: ${m.fromName}</span>
+              <span class="admin-note-time">${m.timestamp}</span>
+            </div>
+            <div class="admin-note-text">${esc(m.message)}</div>
+            <button class="admin-note-reply" onclick="openReply('${m.id}','${m.leadPhone||""}',${m.rowIndex})">↩ Reply</button>
+          </div>`).join("")}
+      </div>`:""}
+
+      <div class="section">
+        <div class="section-label">Lead Info</div>
+        <div class="fields-grid">
+          <div class="field-row"><div class="field-lbl">Phone</div><div class="field-val">${l.phone||"—"}</div></div>
+          <div class="field-row"><div class="field-lbl">Country</div><div class="field-val locked">${l.country||"—"}</div></div>
+          <div class="field-row"><div class="field-lbl">Campaign</div><div class="field-val locked">${l.campaign||"—"}</div></div>
+          <div class="field-row"><div class="field-lbl">Call</div>
+            <select class="field-select-inline" onchange="markDirty('call',this.value)">
+              ${CALL_OPTS.map(o=>`<option value="${o}" ${o===l.call?"selected":""}>${o||"Call Status"}</option>`).join("")}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">🎯 Opportunity</div>
+        <div class="fields-grid">
+          <div class="field-row"><div class="field-lbl">Priority</div>
+            <select class="field-select-inline" onchange="markDirty('priority',this.value)">
+              ${["Normal","High"].map(o=>`<option value="${o}" ${(o===l.priority||(o==="Normal"&&!l.priority))?"selected":""}>${o==="High"?"⭐ High":o}</option>`).join("")}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Lead Profile</div>
+        <textarea class="profile-ta" id="fldProfile"
+          placeholder="Beginner — interested in X units of [model] — budget ~[amount]"
+          oninput="markDirty('profile',this.value)">${esc(l.profile||"")}</textarea>
+      </div>
+
+      <div class="section">
+        <div class="section-label">Add Note</div>
+        <div class="note-types" id="noteTypes">
+          ${["Call","WhatsApp","Meeting","Follow Up","Other"].map((t,i)=>
+            `<div class="ntype ${i===0?"on":""}" onclick="pickNoteType(this,'${t}')">${t}</div>`
+          ).join("")}
+        </div>
+        <textarea class="note-ta" id="noteTa" placeholder="Write a note..."></textarea>
+        <button class="btn-p" style="margin-top:10px;width:100%" onclick="submitNote()">Add Note</button>
+      </div>
+
+      ${notes.length?`<div class="section">
+        <div class="section-label">Note History</div>
+        ${notes.map(n=>`<div class="note-item">
+          <div class="note-item-meta">
+            <span class="note-item-type">${n.type}</span>
+            <span class="note-item-time">${n.time}</span>
+          </div>
+          <div class="note-item-text">${esc(n.text)}</div>
+        </div>`).join("")}
+      </div>`:""}
+
+      <div class="section">
+        <div class="section-label">Sale</div>
+        ${isSale?`
+        <div class="sale-grid" style="margin-bottom:12px">
+          <div class="sale-field"><label>Invoice #</label><input id="sInv" class="sale-input" placeholder="INV-001"></div>
+          <div class="sale-field"><label>Date</label><input id="sDate" class="sale-input" type="date"></div>
+          <div class="sale-field"><label>Amount</label><input id="sAmt" class="sale-input" inputmode="numeric" placeholder="0"></div>
+          <div class="sale-field"><label>Currency</label>
+            <select id="sCur" class="sale-input"><option>AED</option><option>USD</option><option>NGN</option><option>USDT</option></select>
+          </div>
+        </div>
+        <div style="margin-bottom:12px">
+          <div class="sale-field"><label>Miner Model</label><input id="sMod" class="sale-input" placeholder="e.g. S19 XP Hyd"></div>
+        </div>
+        <button class="btn-p" style="width:100%" onclick="submitSale()">Save Sale ✓</button>
+        ${sales.length?`<div style="margin-top:12px">${sales.map(s=>`
+          <div class="sale-record">
+            <div class="sale-record-title">${s.model} — ${s.amount} ${s.currency}</div>
+            <div class="sale-record-detail">INV: ${s.invoiceNo||"—"} · ${s.date}</div>
+          </div>`).join("")}</div>`:""}
+        `:`<div style="color:var(--faint);font-size:13px;padding:8px 0">🔒 Available when Status = Sale</div>`}
+      </div>
+
+      <div class="section">
+        <div class="section-label">Change History</div>
+        ${[["Status",l.histStatus],["Follow Up",l.histFollowup],["Lead Level",l.histLevel],["Call",l.histCall]]
+          .filter(([,v])=>v).map(([lbl,val])=>`
+          <div style="margin-bottom:10px">
+            <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px">${lbl}</div>
+            ${val.split("|").reverse().map(e=>`<div class="hist-entry">${e.trim()}</div>`).join("")}
+          </div>`).join("") || `<div style="color:var(--faint);font-size:13px">No history yet</div>`}
+      </div>
+      <div style="height:16px"></div>
+    </div>
+
+    <div id="saveBar" class="save-bar hidden">
+      <button class="discard-btn" onclick="discardChanges()">Discard</button>
+      <button id="saveBtnMain" class="save-btn" onclick="saveAllChanges()">Save Changes</button>
+    </div>`;
+
+  // Set sale date default
+  const sd=document.getElementById("sDate");
+  if(sd) sd.valueAsDate=new Date();
+}
+
+function closeDetailMobile(){
+  const dc=document.getElementById("leadDetail");
+  dc.classList.remove("mobile-open");
+  dc.classList.add("empty");
+  dc.innerHTML=`<div class="empty-state"><div class="empty-state-icon">👆</div><div class="empty-state-text">Select a lead</div></div>`;
+}
+
+// ── Status change ────────────────────────────────────────────
+function changeStatus(val,sel){
+  const s=val.toLowerCase();
+  if(s==="waiting"){
+    const profile=String(DETAIL_LEAD.profile||"").trim();
+    const pending=PENDING_CHANGES["profile"];
+    if(!profile&&!pending){
+      sel.value=DETAIL_LEAD.status||"";
+      showToast("⚠ Fill Lead Profile before setting Waiting",true);
+      setTimeout(()=>{const pf=document.getElementById("fldProfile");if(pf){pf.focus();pf.style.borderColor="var(--red)";setTimeout(()=>pf.style.borderColor="",2500);}},300);
+      return;
+    }
+  }
+  if(s==="no responded"){
+    const fu=String(DETAIL_LEAD.followup||"").trim();
+    if(fu!=="No Reply — Called"){
+      sel.value=DETAIL_LEAD.status||"";
+      showToast("⚠ Must set 'No Reply — Called' first",true);
+      return;
+    }
+  }
+  if(NOTE_REQUIRED.includes(s)){
+    PENDING_STATUS={val,sel};
+    document.getElementById("noteModalSub").textContent=`Moving to "${val}" requires a note.`;
+    document.getElementById("noteModalTa").value="";
+    document.getElementById("noteModal").classList.add("open");
+    return;
+  }
+  doStatusChange(val,null);
+}
+function closeNoteModal(){
+  if(PENDING_STATUS?.sel) PENDING_STATUS.sel.value=DETAIL_LEAD.status||"";
+  PENDING_STATUS=null;
+  document.getElementById("noteModal").classList.remove("open");
+}
+async function confirmNoteModal(){
+  const note=document.getElementById("noteModalTa").value.trim();
+  if(!note){showToast("Write a note first",true);return;}
+  const {val}=PENDING_STATUS; PENDING_STATUS=null;
+  document.getElementById("noteModal").classList.remove("open");
+  await doStatusChange(val,note);
+}
+async function doStatusChange(val,note){
+  const res=await api({action:"updateField",pin:PIN,rowIndex:DETAIL_LEAD.rowIndex,field:"status",value:val,noteForTransition:note||""});
+  if(res.ok){DETAIL_LEAD.status=val;updateArr(DETAIL_LEAD);renderDetail();renderLeads();showToast("Status updated");}
+  else{showToast(res.error,true);renderDetail();}
+}
+
+// ── Pending changes ──────────────────────────────────────────
+function markDirty(field,value){
+  if(field==="followup"&&value==="Conversation Start"){
+    const profile=String(DETAIL_LEAD.profile||"").trim();
+    const pending=PENDING_CHANGES["profile"];
+    if(!profile&&!pending){
+      showToast("⚠ Fill Lead Profile before Conversation Start",true);
+      setTimeout(()=>{const pf=document.getElementById("fldProfile");if(pf){pf.focus();pf.style.borderColor="var(--red)";setTimeout(()=>pf.style.borderColor="",2500);}},300);
+      const sel=document.querySelector('[onchange*="followup"]');
+      if(sel) sel.value=DETAIL_LEAD.followup||"";
+      return;
+    }
+  }
+  if(String(DETAIL_LEAD[field]||"")===value){delete PENDING_CHANGES[field];}
+  else{PENDING_CHANGES[field]=value;}
+  const bar=document.getElementById("saveBar");
+  bar.classList.toggle("hidden",Object.keys(PENDING_CHANGES).length===0);
+  const n=Object.keys(PENDING_CHANGES).length;
+  document.getElementById("saveBtnMain").textContent=n>0?`Save Changes (${n})`:"Save Changes";
+}
+async function saveAllChanges(){
+  const btn=document.getElementById("saveBtnMain");
+  btn.disabled=true; btn.textContent="Saving...";
+  let saved=0,errors=[];
+  for(const [field,value] of Object.entries(PENDING_CHANGES)){
+    const res=await api({action:"updateField",pin:PIN,rowIndex:DETAIL_LEAD.rowIndex,field,value});
+    if(res.ok){DETAIL_LEAD[field]=value;saved++;}
+    else errors.push(res.error);
+  }
+  PENDING_CHANGES={};
+  updateArr(DETAIL_LEAD);
+  if(errors.length) showToast(errors[0],true);
+  else{showToast(saved+" change(s) saved ✓");DETAIL_LEAD.lastModified=todayStr();}
+  document.getElementById("saveBar").classList.add("hidden");
+  btn.disabled=false; btn.textContent="Save Changes";
+  renderLeads();
+}
+function discardChanges(){PENDING_CHANGES={};document.getElementById("saveBar").classList.add("hidden");renderDetail();}
+
+// ── Favorite ─────────────────────────────────────────────────
+async function toggleFav(){
+  const isFav=String(DETAIL_LEAD.favorite||"").toLowerCase()==="yes";
+  const val=isFav?"":"Yes";
+  const res=await api({action:"updateField",pin:PIN,rowIndex:DETAIL_LEAD.rowIndex,field:"favorite",value:val});
+  if(res.ok){DETAIL_LEAD.favorite=val;updateArr(DETAIL_LEAD);renderDetail();showToast(val==="Yes"?"Added to favorites ⭐":"Removed from favorites");}
+  else showToast(res.error,true);
+}
+
+// ── Note ─────────────────────────────────────────────────────
+function pickNoteType(el,type){
+  selectedNoteType=type;
+  document.querySelectorAll(".ntype").forEach(n=>n.classList.remove("on"));
+  el.classList.add("on");
+}
+async function submitNote(){
+  const text=document.getElementById("noteTa").value.trim();
+  if(!text) return;
+  const res=await api({action:"addNote",pin:PIN,rowIndex:DETAIL_LEAD.rowIndex,noteType:selectedNoteType,noteText:text});
+  if(res.ok){
+    const entry=`[${todayStr()}] [${selectedNoteType}] ${text}`;
+    DETAIL_LEAD.notedata=DETAIL_LEAD.notedata?DETAIL_LEAD.notedata+"\n"+entry:entry;
+    updateArr(DETAIL_LEAD); renderDetail(); showToast("Note added");
+  } else showToast(res.error,true);
+}
+
+// ── Sale ─────────────────────────────────────────────────────
+async function submitSale(){
+  const invoiceNo=document.getElementById("sInv").value.trim();
+  const amount=document.getElementById("sAmt").value.trim();
+  const currency=document.getElementById("sCur").value;
+  const model=document.getElementById("sMod").value.trim();
+  const saleDate=document.getElementById("sDate").value;
+  if(!invoiceNo||!amount||!model){showToast("Invoice, amount and model required",true);return;}
+  const res=await api({action:"addSale",pin:PIN,rowIndex:DETAIL_LEAD.rowIndex,invoiceNo,amount,currency,model,saleDate});
+  if(res.ok){
+    const entry=JSON.stringify({date:saleDate,invoiceNo,amount,currency,model,ts:todayStr()});
+    DETAIL_LEAD.salesdata=DETAIL_LEAD.salesdata?DETAIL_LEAD.salesdata+"|||"+entry:entry;
+    updateArr(DETAIL_LEAD); renderDetail(); showToast("Sale saved ✓");
+  } else showToast(res.error,true);
+}
+
+// ── Admin messages page ──────────────────────────────────────
+function renderMessagesPage(){
+  const el=document.getElementById("msgsContent");
+  if(!ADMIN_MSGS.length){el.innerHTML=`<div style="padding:40px;text-align:center;color:var(--faint)">No messages from admin</div>`;return;}
+  el.innerHTML=ADMIN_MSGS.map(m=>`
+    <div style="background:${m.read==="Yes"?'var(--white)':'var(--blue-bg)'};border:1.5px solid ${m.read==="Yes"?'var(--border)':'var(--blue-border)'};border-radius:var(--r);padding:16px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+        <span style="font-size:12px;font-weight:700;color:var(--dark)">From: ${m.fromName}</span>
+        ${m.leadPhone?`<span style="font-size:11px;background:var(--tag);color:var(--green2);padding:2px 8px;border-radius:10px;font-weight:700">📱 ${m.leadPhone}</span>`:""}
+        <span style="font-size:11px;color:var(--muted);font-family:var(--mono);margin-left:auto">${m.timestamp}</span>
+      </div>
+      <div style="font-size:13px;color:var(--dark);line-height:1.5;margin-bottom:10px">${esc(m.message)}</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-p" style="font-size:12px;padding:7px 14px" onclick="openReply('${m.id}','${m.leadPhone||""}',${m.rowIndex})">↩ Reply</button>
+        ${m.read!=="Yes"?`<button class="btn-p" style="font-size:12px;padding:7px 14px;background:var(--bg);color:var(--soft);border:1.5px solid var(--border)" onclick="markMsgRead(${m.rowIndex},this)">Mark Read</button>`:""}
+        ${m.leadPhone?`<button class="btn-p" style="font-size:12px;padding:7px 14px;background:var(--green2)" onclick="goToLeadByPhone('${m.leadPhone}')">View Lead →</button>`:""}
       </div>
     </div>`).join("");
 }
 
-async function sendMsg(){
-  const to=document.getElementById("msgTo").value;
-  const phone=document.getElementById("msgPhone").value.trim();
-  const msg=document.getElementById("msgTa").value.trim();
-  if(!msg) return;
-  const res=await api({action:"sendMessage",pin:PIN,toManager:to,leadPhone:phone,message:msg,replyTo:REPLY_TO||""});
+function openMsgDetail(rowIndex){
+  showPage("messages",document.querySelectorAll(".nav-item")[2]);
+  setTimeout(()=>renderMessagesPage(),100);
+}
+
+async function markMsgRead(rowIndex,btn){
+  await api({action:"markAdminMsgRead",pin:PIN,rowIndex});
+  const msg=ADMIN_MSGS.find(m=>m.rowIndex===rowIndex);
+  if(msg){msg.read="Yes";}
+  if(btn) btn.style.display="none";
+  const mb=document.getElementById("navMsgBadge");
+  const cur=parseInt(mb.textContent||"0")-1;
+  if(cur<=0) mb.classList.add("hidden"); else mb.textContent=cur;
+}
+
+function goToLeadByPhone(phone){
+  const lead=ALL_LEADS.find(l=>l.phone===phone);
+  if(lead){showPage("leads",document.querySelectorAll(".nav-item")[1]);setTimeout(()=>openLeadDetail(lead.rowIndex),100);}
+  else showToast("Lead not found",true);
+}
+
+// Reply modal
+let REPLY_DATA=null;
+function openReply(id,phone,rowIndex){
+  REPLY_DATA={id,phone,rowIndex};
+  document.getElementById("replyTa").value="";
+  document.getElementById("replyModal").classList.add("open");
+}
+function closeReplyModal(){document.getElementById("replyModal").classList.remove("open");REPLY_DATA=null;}
+async function submitReply(){
+  const text=document.getElementById("replyTa").value.trim();
+  if(!text||!REPLY_DATA) return;
+  const res=await api({action:"replyToAdmin",pin:PIN,leadPhone:REPLY_DATA.phone,message:text,replyTo:REPLY_DATA.id});
   if(res.ok){
-    showToast("Sent ✓");
-    document.getElementById("msgTa").value="";
-    document.getElementById("msgPhone").value="";
-    REPLY_TO=null;
-    loadMessages();
+    showToast("Reply sent ✓");
+    closeReplyModal();
+    if(REPLY_DATA.rowIndex) markMsgRead(REPLY_DATA.rowIndex,null);
   } else showToast(res.error,true);
 }
 
-function sendMsgTo(name){
-  showPage("messages",document.querySelectorAll(".nav-i")[2]);
-  setTimeout(()=>{document.getElementById("msgTo").value=name;document.getElementById("msgTa").focus();},100);
+// ── Navigation ───────────────────────────────────────────────
+function showPage(id,navEl){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+  document.getElementById("page"+id.charAt(0).toUpperCase()+id.slice(1)).classList.add("active");
+  if(navEl) navEl.classList.add("active");
+  const titles={dashboard:"Dashboard",leads:"My Leads",messages:"Messages"};
+  document.getElementById("topbarTitle").textContent=titles[id]||id;
+  document.getElementById("topbarSearch").style.display=id==="leads"?"flex":"none";
+  if(id==="messages") renderMessagesPage();
+  // Close mobile sidebar
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("sidebarOverlay").style.display="none";
+}
+function toggleSidebar(){
+  const sb=document.getElementById("sidebar");
+  const ov=document.getElementById("sidebarOverlay");
+  const isOpen=sb.classList.contains("open");
+  sb.classList.toggle("open",!isOpen);
+  ov.style.display=isOpen?"none":"block";
 }
 
-function replyMsg(id,toManager,leadPhone){
-  REPLY_TO=id;
-  document.getElementById("msgTo").value=toManager;
-  document.getElementById("msgPhone").value=leadPhone||"";
-  document.getElementById("msgTa").focus();
-  showToast("Replying to message...");
+// ── Helpers ──────────────────────────────────────────────────
+function getLastActivity(lead){
+  const sources=[lead.histStatus,lead.histLevel,lead.histCall,lead.histFollowup,lead.notedata];
+  const allText=sources.filter(Boolean).join(" ");
+  const matches=allText.match(/\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2})\]/g)||[];
+  if(!matches.length) return null;
+  return new Date(Math.max(...matches.map(m=>new Date(m.replace(/[\[\]]/g,"")))));
 }
-
-async function markRead(rowIndex,btn){
-  await api({action:"markRead",pin:PIN,rowIndex});
-  if(btn) btn.style.display="none";
-  const mb=document.getElementById("navMsgBadge"),tb=document.getElementById("tbMsgBadge");
-  const cur=parseInt(mb.textContent||"0")-1;
-  if(cur<=0){mb.classList.add("hidden");tb.classList.add("hidden");}
-  else{mb.textContent=cur;tb.textContent=cur;}
+function daysSince(date){if(!date) return null;return Math.floor((Date.now()-date.getTime())/86400000);}
+function needsAttention(lead){
+  const s=String(lead.status||"").toLowerCase().trim();
+  if(!["waiting","long negotiation"].includes(s)) return false;
+  const d=daysSince(getLastActivity(lead));
+  return d===null||d>=10;
 }
-
-async function delMsg(rowIndex){
-  if(!confirm("Delete this message?")) return;
-  const res=await api({action:"deleteMessage",pin:PIN,rowIndex});
-  if(res.ok){showToast("Deleted");loadMessages();}
-  else showToast(res.error,true);
+function lastActivityLabel(lead){
+  const last=getLastActivity(lead);
+  if(!last) return "No activity";
+  const d=daysSince(last);
+  if(d===0) return "Today";
+  if(d===1) return "Yesterday";
+  return d+"d ago";
 }
-
-// PIN management
-function editPin(name,current){
-  PENDING_PIN_MGR=name;
-  document.getElementById("pinModalTitle").textContent=`Change PIN — ${name}`;
-  document.getElementById("pinNewVal").value=current||"";
-  document.getElementById("pinModal").classList.add("open");
-}
-function closePinModal(){document.getElementById("pinModal").classList.remove("open");PENDING_PIN_MGR="";}
-async function savePinModal(){
-  const newPin=document.getElementById("pinNewVal").value.trim();
-  if(!newPin||newPin.length<4){showToast("PIN must be at least 4 digits",true);return;}
-  const res=await api({action:"updateManagerPin",pin:PIN,managerName:PENDING_PIN_MGR,newPin});
-  if(res.ok){showToast("PIN updated ✓");closePinModal();loadData();}
-  else showToast(res.error,true);
-}
-
-// Reports
-async function runReport(){
-  const managerName=document.getElementById("rptMgr").value;
-  const dateFrom=document.getElementById("rptFrom").value;
-  const dateTo=document.getElementById("rptTo").value;
-  const el=document.getElementById("rptOut");
-  el.innerHTML=`<div class="loading"><div class="spinner"></div>Generating...</div>`;
-  const res=await api({action:"getReport",pin:PIN,managerName,dateFrom,dateTo});
-  if(!res.ok){el.innerHTML=`<div style="color:var(--red)">${res.error}</div>`;return;}
-  renderReport(res);
-}
-
-function renderReport(res){
-  const el=document.getElementById("rptOut");
-  if(!res.report||!res.report.length){el.innerHTML=`<div style="padding:24px;text-align:center;color:var(--muted)">No data for this period</div>`;return;}
-  window._rptData=res;
-  let html=`<button class="export-btn" onclick="exportXls()">⬇ Export Excel</button>`;
-  res.report.forEach(r=>{
-    const s=r.stats||{};
-    const monthly=s.monthlyCounts||{};
-    const mkeys=Object.keys(monthly).sort();
-    html+=`<div class="rpt-section">
-      <div class="rpt-sec-title">${r.managerName} — ${res.dateFrom} to ${res.dateTo}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-        <table class="rpt-table">
-          <tr><th>Metric</th><th>Value</th></tr>
-          <tr><td>Total Leads</td><td><strong>${s.total||0}</strong></td></tr>
-          <tr><td>New</td><td>${s.new||0}</td></tr>
-          <tr><td>Waiting</td><td>${s.waiting||0}</td></tr>
-          <tr><td>Long Negotiation</td><td>${s.longNeg||0}</td></tr>
-          <tr><td>Sale ✓</td><td><strong style="color:var(--green2)">${s.sale||0}</strong></td></tr>
-          <tr><td>Lost</td><td>${s.lost||0}</td></tr>
-          <tr><td>Bad Lead</td><td>${s.badLead||0}</td></tr>
-          <tr><td>No Response</td><td>${s.noResponded||0}</td></tr>
-          <tr><td>Win Rate</td><td><strong style="color:var(--green2)">${s.winRate||0}%</strong></td></tr>
-          <tr><td>Conv. Rate</td><td>${s.convRate||0}%</td></tr>
-        </table>
-        ${mkeys.length?`<div>
-          <div class="rpt-sec-title">Monthly Volume</div>
-          <table class="rpt-table">
-            <tr>${mkeys.map(k=>`<th>${k}</th>`).join("")}</tr>
-            <tr>${mkeys.map(k=>`<td>${monthly[k]}</td>`).join("")}</tr>
-          </table>
-        </div>`:""}
-      </div>
-    </div>`;
-  });
-  el.innerHTML=html;
-}
-
-function exportXls(){
-  const res=window._rptData;
-  if(!res) return;
-  const wb=XLSX.utils.book_new();
-  res.report.forEach(r=>{
-    const s=r.stats||{};
-    const data=[
-      ["Manager",r.managerName],["Period",`${res.dateFrom} to ${res.dateTo}`],
-      ["Generated",res.generatedAt],[],
-      ["Metric","Value"],
-      ["Total Leads",s.total||0],["New",s.new||0],["Waiting",s.waiting||0],
-      ["Long Negotiation",s.longNeg||0],["Sale",s.sale||0],
-      ["Lost",s.lost||0],["Bad Lead",s.badLead||0],["No Response",s.noResponded||0],
-      ["Win Rate (%)",s.winRate||0],["Conversion Rate (%)",s.convRate||0],[],
-      ["Month","Leads"],
-      ...Object.entries(s.monthlyCounts||{}).sort().map(([k,v])=>[k,v]),[],
-      ["Phone","Name","Status","Country","Entry Date","Follow Up","Lead Level","Profile","Note"],
-      ...(r.leads||[]).map(l=>[l.phone,l.name,l.status,l.country,l.date,l.followup,l.leadlevel,l.profile,l.note])
-    ];
-    const ws=XLSX.utils.aoa_to_sheet(data);
-    ws["!cols"]=[{wch:20},{wch:30}];
-    XLSX.utils.book_append_sheet(wb,ws,r.managerName.substring(0,31));
-  });
-  XLSX.writeFile(wb,`Aryaminer_Report_${res.dateFrom}_${res.dateTo}.xlsx`);
-  showToast("Excel downloaded ✓");
-}
-
+function parseNotes(raw){if(!raw)return[];return raw.split("\n").filter(Boolean).reverse().map(l=>{const m=l.match(/^\[(.+?)\]\s*\[(.+?)\]\s*(.+)$/);return m?{time:m[1],type:m[2],text:m[3]}:{time:"",type:"Note",text:l};});}
+function parseSales(raw){if(!raw)return[];try{return raw.split("|||").map(s=>JSON.parse(s)).reverse();}catch{return[];}}
+function updateArr(lead){const i=ALL_LEADS.findIndex(l=>l.rowIndex===lead.rowIndex);if(i>-1)ALL_LEADS[i]={...lead};}
+function todayStr(){return new Date().toISOString().slice(0,16).replace("T"," ");}
 function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 let toastTimer;
 function showToast(msg,isErr=false){
