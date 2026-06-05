@@ -2,745 +2,656 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Aryaminer Admin</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230D321B'/><text x='16' y='23' font-family='Arial' font-weight='700' font-size='18' fill='%2351B963' text-anchor='middle'>A</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+*{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --dark:#0D321B;--dark2:#081a0f;--dark3:#102a1a;
-  --green:#51B963;--green2:#3d9650;
-  --bg:#f2f6f3;--white:#fff;
-  --border:#d4e8d9;--border2:#b8d9bf;
-  --text:#0D321B;--soft:#3d6b4a;--muted:#7a9e84;--faint:#adc8b4;
-  --red:#c0392b;--red-bg:#fdf0ef;--red-border:#f5c6c2;
-  --amber:#9a6c00;--amber-bg:#fdf8e8;
-  --blue:#1251a3;--blue-bg:#eef4ff;--blue-border:#b8d0f8;
-  --mono:'DM Mono',monospace;--r:12px;--r-sm:8px;
-  --shadow:0 1px 3px rgba(13,50,27,.06),0 4px 16px rgba(13,50,27,.08);
+  --dk:#0D321B;--dk2:#0a2614;--gn:#51B963;--gn2:#3d9650;
+  --bg:#f4f7f5;--wh:#fff;--b1:#dce8df;--b2:#c0d5c5;
+  --t1:#0D321B;--t2:#3d6b4a;--t3:#7a9e84;
+  --red:#c0392b;--red-bg:#fdecea;--amber:#b7800a;--amber-bg:#fff8e1;
+  --blue:#1565c0;--blue-bg:#e3f2fd;
+  --r:8px;--mono:monospace;
 }
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-button{font-family:'DM Sans',sans-serif;cursor:pointer;border:none;outline:none}
-input,select,textarea{font-family:'DM Sans',sans-serif;outline:none;border:none;background:none}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh}
+button{font-family:inherit;cursor:pointer;border:none;outline:none;background:none}
+input,select,textarea{font-family:inherit;outline:none;border:none;background:none}
+
+/* Layout */
+.app{display:flex;min-height:100vh}
+.sidebar{width:200px;background:var(--dk);display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:50}
+.sb-brand{padding:16px 14px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-ico{width:28px;height:28px;background:var(--gn);border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;margin-right:8px;vertical-align:middle}
+.sb-title{font-size:13px;font-weight:700;color:#fff;letter-spacing:.04em}
+.sb-sub{font-size:9px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
+.sb-admin{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sb-name{font-size:13px;font-weight:600;color:#fff}
+.sb-role{font-size:9px;color:var(--gn);text-transform:uppercase;letter-spacing:.08em;margin-top:1px}
+.sb-nav{padding:8px 8px;flex:1;display:flex;flex-direction:column;gap:1px}
+.sn{display:flex;align-items:center;gap:7px;padding:9px 10px;border-radius:6px;color:rgba(255,255,255,.45);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;width:100%;text-align:left}
+.sn:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.8)}
+.sn.on{background:rgba(81,185,99,.18);color:var(--gn)}
+.sb-foot{padding:10px 14px;border-top:1px solid rgba(255,255,255,.08)}
+.sb-out{font-size:11px;color:rgba(255,255,255,.3);transition:color .15s}
+.sb-out:hover{color:rgba(255,255,255,.6)}
+.main{margin-left:200px;flex:1}
+.topbar{height:44px;background:var(--wh);border-bottom:1px solid var(--b1);padding:0 24px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:40}
+.tb-title{font-size:14px;font-weight:600;color:var(--t1);flex:1}
+.tb-time{font-size:11px;color:var(--t3);font-family:var(--mono)}
+.page{display:none;padding:20px 24px}
+.page.on{display:block}
 
 /* Login */
-.screen{display:none;min-height:100vh}
-.screen.active{display:flex}
-#loginScreen{align-items:center;justify-content:center;
-  background:linear-gradient(160deg,var(--dark2) 0%,var(--dark) 60%,var(--dark3) 100%);
-  position:relative;overflow:hidden}
-#loginScreen::before{content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 25% 25%,rgba(81,185,99,.1) 0%,transparent 55%),
-             radial-gradient(ellipse at 75% 75%,rgba(81,185,99,.05) 0%,transparent 50%)}
-.login-card{position:relative;width:min(400px,92vw);background:rgba(255,255,255,.04);
-  border:1px solid rgba(81,185,99,.2);border-radius:20px;padding:40px 36px;backdrop-filter:blur(20px)}
-.login-brand{display:flex;align-items:center;gap:12px;margin-bottom:32px}
-.login-hex{width:44px;height:44px;background:var(--green);border-radius:10px;
-  display:flex;align-items:center;justify-content:center;font-size:22px}
-.login-brand-name{font-size:18px;font-weight:700;color:#fff;letter-spacing:.04em}
-.login-brand-sub{font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.12em;text-transform:uppercase;margin-top:1px}
-.login-role-badge{font-size:10px;color:rgba(255,255,255,.35);background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.12);padding:3px 10px;border-radius:10px;margin-top:4px;display:inline-block;letter-spacing:.08em}
-.lbl{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
-.pin-in{width:100%;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.12);
-  border-radius:var(--r);padding:16px 20px;font-size:24px;color:#fff;
-  letter-spacing:.4em;text-align:center;font-family:var(--mono);transition:border .2s}
-.pin-in:focus{border-color:rgba(81,185,99,.6)}
-.pin-in::placeholder{color:rgba(255,255,255,.2);letter-spacing:.1em}
-.login-btn{margin-top:14px;width:100%;background:var(--green);color:#fff;font-weight:700;
-  font-size:15px;padding:15px;border-radius:var(--r);transition:all .2s}
-.login-btn:hover{background:var(--green2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(81,185,99,.3)}
-.login-err{color:#f48a84;font-size:13px;margin-top:10px;min-height:18px;text-align:center}
+#s-login{display:none;min-height:100vh;align-items:center;justify-content:center;background:var(--dk);flex-direction:column}
+#s-login.on{display:flex}
+.lbox{width:300px;text-align:center}
+.l-ico{width:52px;height:52px;background:var(--gn);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 12px}
+.l-name{font-size:18px;font-weight:700;color:#fff;margin-bottom:2px}
+.l-sub{font-size:11px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.12em;margin-bottom:28px}
+.l-lbl{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.l-pin{width:100%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);border-radius:var(--r);padding:13px;font-size:22px;color:#fff;letter-spacing:.4em;text-align:center;font-family:var(--mono);transition:border .2s}
+.l-pin:focus{border-color:var(--gn)}
+.l-btn{margin-top:12px;width:100%;background:var(--gn);color:#fff;font-weight:700;font-size:14px;padding:12px;border-radius:var(--r);transition:background .15s}
+.l-btn:hover{background:var(--gn2)}
+.l-err{color:#fca5a5;font-size:12px;margin-top:8px;min-height:16px}
 
-/* App layout */
-#appScreen{flex-direction:row}
-.sidebar{width:240px;min-height:100vh;background:var(--dark);display:flex;flex-direction:column;
-  position:fixed;left:0;top:0;bottom:0;z-index:50}
-.sb-brand{padding:20px 18px 14px;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:10px}
-.sb-hex{width:32px;height:32px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.sb-name{font-size:13px;font-weight:700;color:#fff;letter-spacing:.04em}
-.sb-sub{font-size:9px;color:rgba(255,255,255,.3);letter-spacing:.1em;text-transform:uppercase}
-.sb-admin{padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.07)}
-.sb-admin-name{font-size:14px;font-weight:600;color:#fff}
-.sb-role{font-size:10px;color:var(--green);letter-spacing:.08em;text-transform:uppercase;margin-top:1px}
-.sb-nav{padding:10px 10px;flex:1;display:flex;flex-direction:column;gap:1px;overflow-y:auto}
-.nav-i{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--r-sm);
-  cursor:pointer;transition:all .15s;color:rgba(255,255,255,.45);font-size:13px;font-weight:500}
-.nav-i:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.8)}
-.nav-i.on{background:rgba(81,185,99,.15);color:var(--green)}
-.nav-i .ni{font-size:15px;width:20px;text-align:center;flex-shrink:0}
-.nav-i .nb{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:2px 6px;font-family:var(--mono)}
-.nav-section{font-size:9px;color:rgba(255,255,255,.2);letter-spacing:.12em;text-transform:uppercase;
-  padding:10px 11px 4px;font-weight:700}
-.sb-footer{padding:12px 18px;border-top:1px solid rgba(255,255,255,.07)}
-.logout{font-size:12px;color:rgba(255,255,255,.3);background:none;width:100%;text-align:left;transition:color .15s}
-.logout:hover{color:rgba(255,255,255,.6)}
+/* Cards */
+.card{background:var(--wh);border:1px solid var(--b1);border-radius:var(--r);padding:16px}
+.card-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
 
-/* Main */
-.main{margin-left:240px;min-height:100vh;display:flex;flex-direction:column}
-.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:13px 28px;
-  display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:40}
-.topbar-title{font-size:15px;font-weight:700;color:var(--dark);flex:1}
-.tb-badge{background:var(--red);color:#fff;font-size:11px;font-weight:700;
-  border-radius:20px;padding:3px 9px;font-family:var(--mono)}
-.tb-badge.hidden{display:none}
-.tb-refresh{font-size:13px;color:var(--muted);background:var(--bg);border:1px solid var(--border);
-  padding:7px 14px;border-radius:var(--r-sm);transition:all .15s}
-.tb-refresh:hover{border-color:var(--green2);color:var(--green2)}
-
-/* Pages */
-.page{display:none;padding:24px 28px;flex:1}
-.page.active{display:block}
-
-/* Dashboard overview */
-.overview-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px}
-.ov-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);
-  padding:16px 18px;position:relative;overflow:hidden}
-.ov-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.ov-card.c-blue::after{background:var(--blue)}
-.ov-card.c-amber::after{background:#d4a017}
-.ov-card.c-red::after{background:var(--red)}
-.ov-card.c-green::after{background:var(--green)}
-.ov-card.c-muted::after{background:var(--faint)}
-.ov-num{font-family:var(--mono);font-size:28px;font-weight:700;line-height:1;margin-bottom:3px}
-.ov-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
-.c-blue .ov-num{color:var(--blue)}
-.c-amber .ov-num{color:var(--amber)}
-.c-red .ov-num{color:var(--red)}
-.c-green .ov-num{color:var(--green2)}
-.c-muted .ov-num{color:var(--muted)}
+/* Overview */
+.ov-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.ov{background:var(--wh);border:1px solid var(--b1);border-radius:var(--r);padding:14px;border-top:3px solid}
+.ov.n{border-top-color:var(--blue)} .ov.w{border-top-color:var(--amber)} .ov.l{border-top-color:var(--red)} .ov.s{border-top-color:var(--gn)} .ov.t{border-top-color:var(--b2)}
+.ov-n{font-size:26px;font-weight:700;font-family:var(--mono);line-height:1;margin-bottom:3px}
+.ov.n .ov-n{color:var(--blue)} .ov.w .ov-n{color:var(--amber)} .ov.l .ov-n{color:var(--red)} .ov.s .ov-n{color:var(--gn2)} .ov.t .ov-n{color:var(--t2)}
+.ov-l{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
 
 /* Manager cards */
-.mgr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:16px}
-.mgr-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);
-  overflow:hidden;transition:all .15s;cursor:pointer}
-.mgr-card:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
-.mgr-card-head{padding:16px 20px;background:linear-gradient(135deg,var(--dark),var(--dark3));
-  display:flex;align-items:center;gap:12px}
-.mgr-avatar{width:40px;height:40px;background:var(--green);border-radius:10px;
-  display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;
-  color:var(--dark);flex-shrink:0}
-.mgr-name{font-size:15px;font-weight:700;color:#fff}
-.mgr-email{font-size:11px;color:rgba(255,255,255,.4);margin-top:1px}
+.mgr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.mgr-card{background:var(--wh);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:box-shadow .15s}
+.mgr-card:hover{box-shadow:0 4px 16px rgba(13,50,27,.1)}
+.mgr-head{background:var(--dk);padding:14px 16px;display:flex;align-items:center;gap:10px}
+.mgr-av{width:36px;height:36px;background:var(--gn);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--dk);flex-shrink:0}
+.mgr-n{font-size:14px;font-weight:700;color:#fff}
 .mgr-wr{margin-left:auto;text-align:right}
-.mgr-wr-num{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--green)}
-.mgr-wr-lbl{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em}
-.mgr-card-body{padding:16px 20px}
-.mgr-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
-.ms{background:var(--bg);border-radius:var(--r-sm);padding:8px 6px;text-align:center}
-.ms-n{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--dark)}
-.ms-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
-.ms.sale .ms-n{color:var(--green2)}.ms.long .ms-n{color:var(--red)}.ms.wait .ms-n{color:var(--amber)}
-.mgr-alerts{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
-.al{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px}
-.al-r{background:var(--red-bg);color:var(--red)}.al-a{background:var(--amber-bg);color:var(--amber)}
-.al-b{background:var(--blue-bg);color:var(--blue)}
-.mgr-chart{margin-top:4px}
-.bar-row{display:flex;align-items:flex-end;gap:4px;height:50px}
-.bar-c{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
-.bar-b{border-radius:3px 3px 0 0;min-height:2px;background:var(--green);width:100%}
-.bar-v{font-size:8px;color:var(--soft);font-family:var(--mono);font-weight:600}
-.bar-l{font-size:8px;color:var(--muted)}
+.mgr-wr-n{font-size:20px;font-weight:700;color:var(--gn);font-family:var(--mono)}
+.mgr-wr-l{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em}
+.mgr-body{padding:14px 16px}
+.mgr-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.ms{background:var(--bg);border-radius:6px;padding:7px;text-align:center}
+.ms-n{font-size:17px;font-weight:700;font-family:var(--mono);color:var(--t1)}
+.ms-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em;margin-top:1px}
+.ms.s .ms-n{color:var(--gn2)} .ms.l .ms-n{color:var(--red)} .ms.w .ms-n{color:var(--amber)}
+.mgr-alerts{display:flex;flex-wrap:wrap;gap:5px}
+.al{font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px}
+.al-r{background:var(--red-bg);color:var(--red)} .al-a{background:var(--amber-bg);color:var(--amber)}
+.pin-chip{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--gn);background:rgba(81,185,99,.15);padding:2px 8px;border-radius:10px;cursor:pointer}
 
-/* Alerts panel */
-.alert-panel{background:linear-gradient(135deg,#1f0505,#2d0808);border:1.5px solid rgba(192,57,43,.4);
-  border-radius:var(--r);padding:16px 20px;margin-bottom:20px}
-.ap-title{font-size:13px;font-weight:700;color:#ef8c87;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.ap-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(192,57,43,.2);cursor:pointer}
-.ap-item:last-child{border-bottom:none}
-.ap-days{font-family:var(--mono);font-size:16px;font-weight:700;color:#ef8c87;width:40px;flex-shrink:0}
-.ap-info{flex:1}
-.ap-name{font-size:12px;font-weight:600;color:rgba(255,255,255,.8)}
-.ap-mgr{font-size:10px;color:rgba(255,255,255,.35)}
+/* Alert panel */
+.alert-box{background:#fef2f2;border:1px solid #fecaca;border-radius:var(--r);padding:12px 16px;margin-bottom:16px}
+.alert-box-title{font-size:12px;font-weight:700;color:var(--red);margin-bottom:8px}
+.alert-item{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(192,57,43,.15);font-size:12px}
+.alert-item:last-child{border-bottom:none}
+.alert-days{font-family:var(--mono);font-weight:700;color:var(--red);width:35px}
 
-/* Messages */
-.compose{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px}
-.form-lbl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;margin-bottom:5px}
-.form-in{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-sm);
-  padding:10px 14px;font-size:14px;color:var(--text);transition:border .2s;margin-bottom:12px}
-.form-in:focus{border-color:var(--green2)}
-.form-ta{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-sm);
-  padding:10px 14px;font-size:13px;color:var(--text);resize:vertical;min-height:80px;
-  transition:border .2s;margin-bottom:12px}
-.form-ta:focus{border-color:var(--green2)}
-.form-sel{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-sm);
-  padding:10px 14px;font-size:14px;color:var(--text);margin-bottom:12px}
-.btn-p{background:var(--dark);color:#fff;font-weight:700;font-size:13px;
-  padding:11px 20px;border-radius:var(--r);transition:background .15s;cursor:pointer}
-.btn-p:hover{background:var(--green2)}
-.btn-p.full{width:100%;font-size:14px;padding:13px}
-.msg-item{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);
-  padding:14px 18px;margin-bottom:8px}
-.msg-item.unread{border-color:var(--blue);background:var(--blue-bg)}
-.msg-meta{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
-.msg-from{font-size:13px;font-weight:700;color:var(--dark)}
-.msg-role{font-size:10px;background:var(--dark);color:#fff;padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:.05em}
-.msg-to{font-size:12px;color:var(--muted)}
-.msg-phone{font-size:11px;background:var(--tag);color:var(--green2);padding:2px 8px;border-radius:10px;font-weight:700}
-.msg-ts{font-size:11px;color:var(--muted);font-family:var(--mono);margin-left:auto}
-.msg-text{font-size:13px;color:var(--text);line-height:1.5;margin-bottom:10px}
-.msg-btns{display:flex;gap:6px}
-.mb{font-size:11px;font-weight:700;padding:6px 12px;border-radius:20px;cursor:pointer}
-.mb-reply{background:var(--dark);color:#fff}
-.mb-del{background:var(--red-bg);color:var(--red)}
-.mb-read{background:var(--bg);border:1px solid var(--border);color:var(--soft)}
+/* Lead table */
+.lead-table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:var(--dk);color:#fff;padding:9px 12px;text-align:left;font-size:10px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--b1);cursor:pointer;transition:background .1s}
+tbody tr:hover{background:var(--bg)}
+tbody td{padding:9px 12px;color:var(--t1);vertical-align:middle}
+.tph{font-family:var(--mono);font-weight:600}
+.badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;text-transform:uppercase}
+.b-new{background:var(--blue);color:#fff}
+.b-wait{background:var(--amber);color:#fff}
+.b-long{background:var(--red);color:#fff}
+.b-sale{background:var(--gn2);color:#fff}
+.b-dead{background:#888;color:#fff}
+.search-bar{display:flex;align-items:center;gap:8px;background:var(--wh);border:1px solid var(--b1);border-radius:var(--r);padding:8px 14px;margin-bottom:12px}
+.search-bar input{font-size:13px;flex:1;color:var(--t1)}
+.search-bar input::placeholder{color:var(--t3)}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.fp{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:var(--wh);border:1px solid var(--b1);color:var(--t2);cursor:pointer;transition:all .15s}
+.fp.on{background:var(--dk);border-color:var(--dk);color:#fff}
 
-/* Report */
-.rpt-filters{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);padding:20px;margin-bottom:16px;display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-end:center}
-.rpt-filters .form-in,.rpt-filters .form-sel{margin-bottom:0}
-.export-btn{background:var(--green2);color:#fff;font-weight:700;font-size:13px;
-  padding:10px 18px;border-radius:var(--r);display:inline-flex;align-items:center;gap:6px;margin-bottom:14px}
-.rpt-table{width:100%;border-collapse:collapse;background:var(--white);
-  border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
-.rpt-table th{background:var(--dark);color:#fff;padding:10px 14px;text-align:left;font-size:11px;letter-spacing:.06em}
-.rpt-table td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px}
-.rpt-table tr:last-child td{border-bottom:none}
-.rpt-table tr:hover td{background:var(--bg)}
-.rpt-section{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r);
-  padding:20px;margin-bottom:14px}
-.rpt-sec-title{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+/* Lead detail panel */
+.lead-detail-panel{position:fixed;top:0;right:0;bottom:0;width:480px;background:var(--wh);border-left:1px solid var(--b1);z-index:200;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .25s}
+.lead-detail-panel.on{transform:translateX(0)}
+.ldp-head{padding:14px 18px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:10px;background:var(--dk)}
+.ldp-phone{font-family:var(--mono);font-size:14px;font-weight:700;color:#fff;flex:1}
+.ldp-close{font-size:20px;color:rgba(255,255,255,.6);cursor:pointer}
+.ldp-save-bar{padding:10px 18px;border-bottom:2px solid var(--gn);background:var(--wh);display:flex;gap:8px}
+.ldp-body{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.sec{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:7px}
+.frow{display:flex;align-items:center;padding:8px 12px;border-bottom:1px solid var(--b1);gap:8px;background:var(--bg);border-radius:0}
+.frow:first-child{border-radius:var(--r) var(--r) 0 0}
+.frow:last-child{border-bottom:none;border-radius:0 0 var(--r) var(--r)}
+.fg{background:var(--bg);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden}
+.fl{font-size:11px;color:var(--t3);width:90px;flex-shrink:0;font-weight:500}
+.fv{font-size:12px;color:var(--t1);font-family:var(--mono);flex:1}
+.fe{width:100%;font-size:12px;color:var(--t1);border-bottom:1px dashed var(--b2);padding:1px 0}
+.fsel{appearance:none;font-size:12px;color:var(--gn2);font-weight:600;cursor:pointer;width:100%;font-family:inherit}
+.hist-entry{font-size:10px;font-family:var(--mono);color:var(--t2);background:var(--bg);border-radius:4px;padding:4px 8px;margin-bottom:3px;line-height:1.5}
+.note-item{background:var(--bg);border-radius:6px;padding:7px 10px;margin-bottom:5px}
+.note-type-tag{font-size:9px;font-weight:700;color:var(--gn2);background:#dcfce7;padding:2px 6px;border-radius:5px;margin-right:6px}
+.note-time{font-size:10px;color:var(--t3);font-family:var(--mono)}
+.note-text{font-size:12px;color:var(--t2);margin-top:2px;line-height:1.4}
+.sale-rec{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:7px 10px;margin-bottom:5px}
+.sale-rec-t{font-size:11px;font-weight:700;color:var(--gn2)}
+.sale-rec-d{font-size:10px;color:var(--t2);font-family:var(--mono);margin-top:1px}
+.pf-ta{width:100%;background:var(--bg);border:1px solid var(--b1);border-radius:6px;padding:9px;font-size:12px;color:var(--t1);resize:vertical;min-height:60px;line-height:1.5;transition:border .2s}
+.pf-ta:focus{border-color:var(--gn)}
+.ldp-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:199}
+.ldp-overlay.on{display:block}
+
+/* Buttons */
+.btn{background:var(--dk);color:#fff;font-weight:600;font-size:12px;padding:8px 16px;border-radius:6px;cursor:pointer;transition:background .15s}
+.btn:hover{background:var(--gn2)}
+.btn.sm{padding:6px 12px;font-size:11px}
+.btn.ghost{background:var(--bg);color:var(--t2);border:1px solid var(--b1)}
+.btn.ghost:hover{border-color:var(--b2)}
+.btn.full{width:100%;padding:10px;font-size:13px}
+
+/* Reports */
+.rpt-filters{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:16px;background:var(--wh);border:1px solid var(--b1);border-radius:var(--r);padding:14px}
+.rf label{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:4px}
+.rf input,.rf select{background:var(--bg);border:1px solid var(--b1);border-radius:6px;padding:7px 10px;font-size:13px;color:var(--t1)}
+.rpt-sec{background:var(--wh);border:1px solid var(--b1);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.rpt-sec-title{font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+.rpt-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+.kpi{background:var(--bg);border-radius:6px;padding:10px;text-align:center}
+.kpi-n{font-size:22px;font-weight:700;font-family:var(--mono);color:var(--t1);line-height:1}
+.kpi-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-top:3px}
+.kpi.s .kpi-n{color:var(--gn2)} .kpi.r .kpi-n{color:var(--red)}
 
 /* PIN modal */
-.modal-ov{display:none;position:fixed;inset:0;background:rgba(13,50,27,.5);z-index:200;
-  align-items:center;justify-content:center;backdrop-filter:blur(4px)}
-.modal-ov.open{display:flex}
-.modal{background:var(--white);border-radius:16px;padding:24px;width:min(420px,92vw);box-shadow:0 8px 40px rgba(13,50,27,.2)}
-.modal-title{font-size:15px;font-weight:700;color:var(--dark);margin-bottom:16px}
-.modal-btns{display:flex;gap:10px;margin-top:16px}
-.mb2{flex:1;padding:12px;border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer}
-.mb2-ok{background:var(--dark);color:#fff}
-.mb2-no{background:var(--bg);border:1.5px solid var(--border);color:var(--soft)}
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;align-items:center;justify-content:center}
+.modal-ov.on{display:flex}
+.modal{background:var(--wh);border-radius:10px;padding:20px;width:320px}
+.modal-t{font-size:14px;font-weight:700;margin-bottom:12px}
+.modal-inp{width:100%;background:var(--bg);border:1px solid var(--b1);border-radius:6px;padding:9px 12px;font-size:14px;font-family:var(--mono);margin-bottom:12px}
+.modal-btns{display:flex;gap:8px}
+.mb{flex:1;padding:10px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer}
+.mb-ok{background:var(--dk);color:#fff}
+.mb-no{background:var(--bg);border:1px solid var(--b1);color:var(--t2)}
 
 /* Toast */
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);
-  background:var(--dark);color:#fff;padding:10px 22px;border-radius:24px;font-size:13px;
-  font-weight:600;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;
-  box-shadow:0 4px 20px rgba(13,50,27,.25)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--dk);color:#fff;padding:9px 18px;border-radius:18px;font-size:12px;font-weight:600;opacity:0;transition:all .25s;z-index:999;white-space:nowrap}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.err{background:var(--red)}
-.loading{text-align:center;padding:48px;color:var(--muted)}
-.spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--green);
-  border-radius:50%;animation:spin .6s linear infinite;margin:0 auto 14px}
+.loading{text-align:center;padding:40px;color:var(--t3)}
+.sp{width:22px;height:22px;border:2.5px solid var(--b1);border-top-color:var(--gn);border-radius:50%;animation:spin .6s linear infinite;margin:0 auto 10px}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-@media(max-width:900px){
-  .sidebar{transform:translateX(-100%)}
-  .sidebar.open{transform:translateX(0)}
-  .main{margin-left:0}
-  .overview-bar{grid-template-columns:repeat(3,1fr)}
-  .mgr-grid{grid-template-columns:1fr}
-  .rpt-filters{grid-template-columns:1fr 1fr;gap:8px}
-  .page{padding:16px}
-}
-.mob-menu{display:none;background:none;font-size:22px;color:var(--dark);padding:4px;margin-right:4px}
-@media(max-width:900px){.mob-menu{display:block}}
-#sbOv{display:none;position:fixed;inset:0;z-index:49;background:rgba(0,0,0,.4)}
 </style>
 </head>
 <body>
 
 <!-- LOGIN -->
-<div id="loginScreen" class="screen active">
-  <div class="login-card">
-    <div class="login-brand">
-      <div class="login-hex">⬡</div>
-      <div>
-        <div class="login-brand-name">ARYAMINER</div>
-        <div class="login-brand-sub">Admin Portal</div>
-      </div>
-    </div>
-    <div class="lbl">Enter your PIN</div>
-    <input id="pinIn" class="pin-in" type="password" inputmode="numeric" maxlength="10" placeholder="• • • •" autocomplete="off">
-    <button class="login-btn" onclick="doLogin()">Sign In →</button>
-    <div id="loginErr" class="login-err"></div>
+<div id="s-login" class="on">
+  <div class="lbox">
+    <div class="l-ico">⬡</div>
+    <div class="l-name">ARYAMINER</div>
+    <div class="l-sub">Admin Portal</div>
+    <div class="l-lbl">Enter your PIN</div>
+    <input id="pin" class="l-pin" type="password" inputmode="numeric" maxlength="10" placeholder="••••" autocomplete="off">
+    <button class="l-btn" onclick="doLogin()">Sign In</button>
+    <div id="pin-err" class="l-err"></div>
   </div>
 </div>
 
 <!-- APP -->
-<div id="appScreen" class="screen">
-  <div id="sidebar" class="sidebar">
+<div id="s-app" class="app" style="display:none">
+  <aside class="sidebar">
     <div class="sb-brand">
-      <div class="sb-hex">⬡</div>
-      <div><div class="sb-name">ARYAMINER</div><div class="sb-sub">Admin Portal</div></div>
+      <span class="sb-ico">⬡</span>
+      <div style="display:inline-block;vertical-align:middle">
+        <div class="sb-title">ARYAMINER</div>
+        <div class="sb-sub">Admin Portal</div>
+      </div>
     </div>
     <div class="sb-admin">
-      <div class="sb-admin-name" id="sbAdminName">—</div>
-      <div class="sb-role" id="sbAdminRole">—</div>
+      <div class="sb-name" id="sb-name">—</div>
+      <div class="sb-role" id="sb-role">—</div>
     </div>
     <nav class="sb-nav">
-      <div class="nav-section">Overview</div>
-      <div class="nav-i on" onclick="showPage('dashboard',this)"><span class="ni">📊</span>Dashboard</div>
-      <div class="nav-i" onclick="showPage('managers',this)"><span class="ni">👥</span>Managers</div>
-      <div class="nav-section">Communication</div>
-      <div class="nav-i" onclick="showPage('messages',this)">
-        <span class="ni">💬</span>Messages
-        <span class="nb hidden" id="navMsgBadge">0</span>
-      </div>
-      <div class="nav-section">Analysis</div>
-      <div class="nav-i" onclick="showPage('reports',this)"><span class="ni">📈</span>Reports</div>
+      <button class="sn on" onclick="goPage('dashboard',this)">📊 Dashboard</button>
+      <button class="sn" onclick="goPage('managers',this)">👥 Managers</button>
+      <button class="sn" onclick="goPage('reports',this)">📈 Reports</button>
     </nav>
-    <div class="sb-footer">
-      <button class="logout" onclick="logout()">← Sign out</button>
-    </div>
-  </div>
+    <div class="sb-foot"><button class="sb-out" onclick="logout()">← Sign out</button></div>
+  </aside>
 
   <div class="main">
     <div class="topbar">
-      <button class="mob-menu" onclick="toggleSb()">☰</button>
-      <div class="topbar-title" id="topTitle">Dashboard</div>
-      <div class="tb-badge hidden" id="tbMsgBadge">0</div>
-      <button class="tb-refresh" onclick="loadData()">↻ Refresh</button>
+      <div class="tb-title" id="tb-title">Dashboard</div>
+      <button class="btn sm" onclick="loadDash()">↻ Refresh</button>
     </div>
 
     <!-- DASHBOARD -->
-    <div id="pageDashboard" class="page active">
-      <div class="loading"><div class="spinner"></div>Loading...</div>
+    <div id="p-dashboard" class="page on">
+      <div class="loading"><div class="sp"></div>Loading...</div>
     </div>
 
     <!-- MANAGERS -->
-    <div id="pageManagers" class="page">
-      <div id="mgrGrid" class="mgr-grid"></div>
-    </div>
-
-    <!-- MESSAGES -->
-    <div id="pageMessages" class="page">
-      <div class="compose">
-        <div style="font-size:13px;font-weight:700;color:var(--dark);margin-bottom:14px">📨 Send Message to Manager</div>
-        <div class="form-lbl">To Manager</div>
-        <select id="msgTo" class="form-sel"></select>
-        <div class="form-lbl">Lead Phone (optional)</div>
-        <input id="msgPhone" class="form-in" placeholder="e.g. 2348012345678">
-        <div class="form-lbl">Message</div>
-        <textarea id="msgTa" class="form-ta" placeholder="Write instruction or note..."></textarea>
-        <button class="btn-p full" onclick="sendMsg()">Send Message</button>
-      </div>
-      <div id="msgList"></div>
+    <div id="p-managers" class="page">
+      <div id="mgr-detail"></div>
     </div>
 
     <!-- REPORTS -->
-    <div id="pageReports" class="page">
+    <div id="p-reports" class="page">
       <div class="rpt-filters">
-        <div>
-          <div class="form-lbl">Manager</div>
-          <select id="rptMgr" class="form-sel" style="margin-bottom:0"></select>
+        <div class="rf">
+          <label>Manager</label>
+          <select id="rpt-mgr" style="min-width:140px"></select>
         </div>
-        <div>
-          <div class="form-lbl">From</div>
-          <input id="rptFrom" class="form-in" type="date" style="margin-bottom:0">
+        <div class="rf">
+          <label>From</label>
+          <input id="rpt-from" type="date">
         </div>
-        <div>
-          <div class="form-lbl">To</div>
-          <input id="rptTo" class="form-in" type="date" style="margin-bottom:0">
+        <div class="rf">
+          <label>To</label>
+          <input id="rpt-to" type="date">
         </div>
-        <div style="display:flex;align-items:flex-end">
-          <button class="btn-p" onclick="runReport()">Generate</button>
-        </div>
+        <button class="btn" onclick="runReport()">Generate</button>
+        <button class="btn ghost" onclick="exportXls()" id="btn-export" style="display:none">⬇ Export Excel</button>
       </div>
-      <div id="rptOut"></div>
+      <div id="rpt-out"></div>
     </div>
   </div>
+</div>
+
+<!-- LEAD DETAIL PANEL -->
+<div class="ldp-overlay" id="ldp-ov" onclick="closeLead()"></div>
+<div class="lead-detail-panel" id="ldp">
+  <div class="ldp-head">
+    <div class="ldp-phone" id="ldp-phone">—</div>
+    <button class="ldp-close" onclick="closeLead()">✕</button>
+  </div>
+  <div class="ldp-save-bar" id="ldp-save-bar">
+    <button class="btn full" onclick="saveLead()" id="ldp-save-btn">💾 Save Changes</button>
+    <button class="btn ghost" onclick="discardLead()" style="flex:0;padding:10px 14px">Discard</button>
+  </div>
+  <div class="ldp-body" id="ldp-body"></div>
 </div>
 
 <!-- PIN MODAL -->
-<div id="pinModal" class="modal-ov">
+<div class="modal-ov" id="pin-modal">
   <div class="modal">
-    <div class="modal-title" id="pinModalTitle">Change PIN</div>
-    <div class="form-lbl">New PIN</div>
-    <input id="pinNewVal" class="form-in" type="text" placeholder="e.g. 4567" maxlength="10">
+    <div class="modal-t" id="pin-modal-t">Change PIN</div>
+    <input id="pin-new-val" class="modal-inp" type="text" placeholder="New PIN (min 4 digits)" maxlength="10">
     <div class="modal-btns">
-      <button class="mb2 mb2-no" onclick="closePinModal()">Cancel</button>
-      <button class="mb2 mb2-ok" onclick="savePinModal()">Save</button>
+      <button class="mb mb-no" onclick="closePinModal()">Cancel</button>
+      <button class="mb mb-ok" onclick="savePinModal()">Save</button>
     </div>
   </div>
 </div>
 
-<div id="sbOv" onclick="toggleSb()"></div>
 <div id="toast" class="toast"></div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxThPTTON7rjIYPiMdO9M0PP3CBxS7iUQIKAKHG8UJEe3A2o2zW-EtuHegwVoACJFGQ/exec";
+const SCRIPT_ = "https://script.google.com/macros/s/AKfycbzGjh5_nMKAhl5t86IR13scgtwN8i4IPxJcuZFe_OZCRC25J56cywCPcJCBLIgaTI1-/exec";
 
-let PIN="", ADMIN_NAME="", ADMIN_ROLE="", DASH_DATA=null, REPLY_TO=null;
-let PENDING_PIN_MGR="";
+let PIN="", ADMIN_NAME="", ADMIN_ROLE="";
+let MANAGERS_LIST=[], DASH_DATA=null;
+let CUR_MANAGER=null, CUR_LEADS=[], LEAD_FILTER="", LEAD_SEARCH="";
+let CUR_LEAD=null, LEAD_PENDING={};
+let PENDING_PIN_MGR="", RPT_DATA=null;
 
-async function api(p){
-  const r=await fetch(SCRIPT_URL+"?data="+encodeURIComponent(JSON.stringify(p)));
-  return r.json();
-}
+const STATUS_OPTS=["","Waiting","Long Negotiation","Sale","Lost - Back to marketing","Bad Lead - Back to marketing","No Responded"];
+const FU_OPTS=["","Conversation Start","No Reply — FU 1","No Reply — FU 2","No Reply — Called"];
+const LL_OPTS=["","Beginner","User-Intermediate","Reseller","Farm-Company","no responded","bad Leads or wrong"];
+const CALL_OPTS=["","No Call Invitation","Call Invited - No Response","Call Scheduled","Call Completed","Call Failed"];
 
-// Auth
+async function api(p){const r=await fetch(SCRIPT_URL+"?data="+encodeURIComponent(JSON.stringify(p)));return r.json();}
+
+// ── Auth ────────────────────────────────────────────────────
 async function doLogin(){
-  const pin=document.getElementById("pinIn").value.trim();
-  if(!pin) return;
-  const err=document.getElementById("loginErr");
-  err.textContent="Checking...";
-  const res=await api({action:"login",pin});
-  if(res.ok){
-    PIN=pin; ADMIN_NAME=res.name; ADMIN_ROLE=res.role;
-    err.textContent="";
-    showScreen("appScreen");
-    document.getElementById("sbAdminName").textContent=ADMIN_NAME;
-    document.getElementById("sbAdminRole").textContent=res.role.toUpperCase();
-    loadData();
-  } else {
-    err.textContent=res.error||"Wrong PIN";
-    document.getElementById("pinIn").value="";
-  }
+  const pin=g("pin").value.trim();if(!pin)return;
+  const e=g("pin-err");e.textContent="Checking...";
+  const r=await api({action:"login",pin});
+  if(r.ok){
+    PIN=pin;ADMIN_NAME=r.name;ADMIN_ROLE=r.role;
+    g("s-login").classList.remove("on");g("s-app").style.display="flex";
+    g("sb-name").textContent=ADMIN_NAME;g("sb-role").textContent=r.role.toUpperCase();
+    loadDash();initReports();
+  }else{e.textContent=r.error||"Wrong PIN";g("pin").value="";}
 }
-function logout(){PIN="";ADMIN_NAME="";showScreen("loginScreen");document.getElementById("pinIn").value="";}
-document.getElementById("pinIn").addEventListener("keydown",e=>{if(e.key==="Enter")doLogin()});
-function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");}
+function logout(){PIN="";g("s-app").style.display="none";g("s-login").classList.add("on");g("pin").value="";}
+g("pin").addEventListener("keydown",e=>{if(e.key==="Enter")doLogin();});
 
-// Navigation
-function showPage(id,el){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.querySelectorAll(".nav-i").forEach(n=>n.classList.remove("on"));
-  document.getElementById("page"+id.charAt(0).toUpperCase()+id.slice(1)).classList.add("active");
-  if(el) el.classList.add("on");
-  const titles={dashboard:"Dashboard",managers:"Managers",messages:"Messages",reports:"Reports"};
-  document.getElementById("topTitle").textContent=titles[id]||id;
-  if(id==="messages") loadMessages();
-  if(id==="managers"&&DASH_DATA) renderManagers(DASH_DATA.managers||[]);
-  document.getElementById("sidebar").classList.remove("open");
-  document.getElementById("sbOv").style.display="none";
-}
-function toggleSb(){
-  const sb=document.getElementById("sidebar"),ov=document.getElementById("sbOv");
-  const open=sb.classList.contains("open");
-  sb.classList.toggle("open",!open);
-  ov.style.display=open?"none":"block";
+// ── Navigation ───────────────────────────────────────────────
+function goPage(id,btn){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("on"));
+  document.querySelectorAll(".sn").forEach(b=>b.classList.remove("on"));
+  g("p-"+id).classList.add("on");if(btn)btn.classList.add("on");
+  const titles={dashboard:"Dashboard",managers:"Managers",reports:"Reports"};
+  g("tb-title").textContent=titles[id]||id;
 }
 
-// Load data
-async function loadData(){
-  const res=await api({action:"getDashboard",pin:PIN});
-  if(!res.ok){showToast(res.error,true);return;}
-  DASH_DATA=res;
-  renderDashboard(res);
-  // Msg badge
-  const mb=document.getElementById("navMsgBadge"),tb=document.getElementById("tbMsgBadge");
-  if(res.unreadMessages>0){mb.textContent=res.unreadMessages;mb.classList.remove("hidden");tb.textContent=res.unreadMessages;tb.classList.remove("hidden");}
-  else{mb.classList.add("hidden");tb.classList.add("hidden");}
-  populateSelects(res.managers||[]);
+// ── Dashboard ─────────────────────────────────────────────────
+async function loadDash(){
+  g("p-dashboard").innerHTML=`<div class="loading"><div class="sp"></div>Loading...</div>`;
+  const r=await api({action:"getDashboard",pin:PIN});
+  if(!r.ok){g("p-dashboard").innerHTML=`<div style="color:var(--red);padding:20px">${r.error}</div>`;return;}
+  DASH_DATA=r;MANAGERS_LIST=r.managers||[];
+  renderDash(r);
+  populateReportMgr();
 }
 
-// Dashboard
-function renderDashboard(res){
-  const managers=res.managers||[];
-  const now=new Date();
-  const totals=managers.reduce((a,m)=>({
-    total:a.total+(m.stats.total||0),new:a.new+(m.stats.new||0),
-    waiting:a.waiting+(m.stats.waiting||0),longNeg:a.longNeg+(m.stats.longNeg||0),sale:a.sale+(m.stats.sale||0)
-  }),{total:0,new:0,waiting:0,longNeg:0,sale:0});
+function renderDash(r){
+  const mgrs=r.managers||[];
+  const tot=mgrs.reduce((a,m)=>({
+    total:a.total+(m.stats.total||0),
+    new:a.new+(m.stats.new||0),
+    wait:a.wait+(m.stats.waiting||0),
+    long:a.long+(m.stats.longNeg||0),
+    sale:a.sale+(m.stats.sale||0)
+  }),{total:0,new:0,wait:0,long:0,sale:0});
 
-  // Collect all urgent items across managers
-  const allWaiting7=[],allLongNeg14=[];
-  managers.forEach(m=>{
-    (m.stats.waitingOld||[]).forEach(l=>allWaiting7.push({...l,mgr:m.name}));
-    (m.stats.longNegOld||[]).forEach(l=>allLongNeg14.push({...l,mgr:m.name}));
-  });
+  // Collect all alerts
+  const allAlerts=[];
+  mgrs.forEach(m=>(m.alerts||[]).forEach(a=>allAlerts.push({...a,mgr:m.name})));
 
-  let html=`
-    <div class="overview-bar">
-      <div class="ov-card c-blue"><div class="ov-num">${totals.total}</div><div class="ov-lbl">Total Leads</div></div>
-      <div class="ov-card c-amber"><div class="ov-num">${totals.new}</div><div class="ov-lbl">New</div></div>
-      <div class="ov-card c-amber"><div class="ov-num">${totals.waiting}</div><div class="ov-lbl">Waiting</div></div>
-      <div class="ov-card c-red"><div class="ov-num">${totals.longNeg}</div><div class="ov-lbl">Long Neg.</div></div>
-      <div class="ov-card c-green"><div class="ov-num">${totals.sale}</div><div class="ov-lbl">Total Sales</div></div>
-    </div>`;
+  let h=`<div class="ov-grid">
+    <div class="ov t"><div class="ov-n">${tot.total}</div><div class="ov-l">Total Leads</div></div>
+    <div class="ov n"><div class="ov-n">${tot.new}</div><div class="ov-l">New</div></div>
+    <div class="ov w"><div class="ov-n">${tot.wait}</div><div class="ov-l">Waiting</div></div>
+    <div class="ov l"><div class="ov-n">${tot.long}</div><div class="ov-l">Long Neg.</div></div>
+    <div class="ov s"><div class="ov-n">${tot.sale}</div><div class="ov-l">Sales ✓</div></div>
+  </div>`;
 
-  // Alerts
-  if(allWaiting7.length>0||allLongNeg14.length>0){
-    html+=`<div class="alert-panel">
-      <div class="ap-title">🔴 Requires Attention (${allWaiting7.length+allLongNeg14.length} leads)</div>
-      ${allLongNeg14.slice(0,3).map(l=>`
-        <div class="ap-item">
-          <div class="ap-days">${l.days}d</div>
-          <div class="ap-info">
-            <div class="ap-name">${esc(l.name||l.phone)} ${l.profile?`— ${esc(l.profile.substring(0,40))}...`:""}</div>
-            <div class="ap-mgr">Long Neg. · Manager: ${l.mgr}${l.budget?` · ${l.budget}`:""}</div>
-          </div>
-        </div>`).join("")}
-      ${allWaiting7.slice(0,3).map(l=>`
-        <div class="ap-item">
-          <div class="ap-days">${l.days}d</div>
-          <div class="ap-info">
-            <div class="ap-name">${esc(l.name||l.phone)}</div>
-            <div class="ap-mgr">Waiting · Manager: ${l.mgr}</div>
-          </div>
-        </div>`).join("")}
+  if(allAlerts.length){
+    h+=`<div class="alert-box" style="margin-bottom:16px">
+      <div class="alert-box-title">⚠ Requires Attention (${allAlerts.length})</div>
+      ${allAlerts.slice(0,6).map(a=>`<div class="alert-item">
+        <span class="alert-days">${a.days}d</span>
+        <span>${a.name||a.phone}</span>
+        <span style="color:var(--t3);margin-left:4px">${a.type==="longNeg"?"Long Neg.":"Waiting"} · ${a.mgr}</span>
+      </div>`).join("")}
     </div>`;
   }
 
-  // Manager comparison cards
-  html+=`<div class="mgr-grid">`;
-  managers.forEach(m=>{
+  h+=`<div class="mgr-grid">`;
+  mgrs.forEach(m=>{
     const s=m.stats||{};
-    const alerts=[];
-    if((s.waitingOld||[]).length) alerts.push(`<span class="al al-r">⏰ ${s.waitingOld.length} waiting 7d+</span>`);
-    if((s.longNegOld||[]).length) alerts.push(`<span class="al al-a">🔴 ${s.longNegOld.length} long neg 14d+</span>`);
-    if(s.new>5) alerts.push(`<span class="al al-b">📥 ${s.new} new</span>`);
-    const monthly=s.monthlyCounts||{};
-    const mkeys=Object.keys(monthly).sort().slice(-5);
-    const maxV=Math.max(...mkeys.map(k=>monthly[k]),1);
-    html+=`<div class="mgr-card" onclick="openMgrDetail('${m.name}')">
-      <div class="mgr-card-head">
-        <div class="mgr-avatar">${m.name.charAt(0).toUpperCase()}</div>
-        <div><div class="mgr-name">${m.name}</div><div class="mgr-email">${m.email||""}</div></div>
+    h+=`<div class="mgr-card" onclick="openManager('${m.name}')">
+      <div class="mgr-head">
+        <div class="mgr-av">${m.name.charAt(0).toUpperCase()}</div>
+        <div>
+          <div class="mgr-n">${m.name}</div>
+          ${ADMIN_ROLE==="owner"?`<span class="pin-chip" onclick="event.stopPropagation();editPin('${m.name}')">PIN: ${m.pin||"—"}</span>`:""}
+        </div>
         <div class="mgr-wr">
-          <div class="mgr-wr-num">${s.winRate||0}%</div>
-          <div class="mgr-wr-lbl">Win Rate</div>
+          <div class="mgr-wr-n">${s.winRate||0}%</div>
+          <div class="mgr-wr-l">Win Rate</div>
         </div>
       </div>
-      <div class="mgr-card-body">
+      <div class="mgr-body">
         <div class="mgr-stats">
           <div class="ms"><div class="ms-n">${s.total||0}</div><div class="ms-l">Total</div></div>
-          <div class="ms wait"><div class="ms-n">${s.waiting||0}</div><div class="ms-l">Waiting</div></div>
-          <div class="ms long"><div class="ms-n">${s.longNeg||0}</div><div class="ms-l">Long Neg</div></div>
-          <div class="ms sale"><div class="ms-n">${s.sale||0}</div><div class="ms-l">Sale</div></div>
+          <div class="ms w"><div class="ms-n">${s.waiting||0}</div><div class="ms-l">Waiting</div></div>
+          <div class="ms l"><div class="ms-n">${s.longNeg||0}</div><div class="ms-l">Long Neg</div></div>
+          <div class="ms s"><div class="ms-n">${s.sale||0}</div><div class="ms-l">Sale</div></div>
         </div>
-        ${alerts.length?`<div class="mgr-alerts">${alerts.join("")}</div>`:""}
-        ${mkeys.length?`<div class="mgr-chart">
-          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Monthly Volume</div>
-          <div class="bar-row">
-            ${mkeys.map(k=>{const h=Math.max(Math.round((monthly[k]/maxV)*40),2);return `<div class="bar-c">
-              <div class="bar-v">${monthly[k]}</div>
-              <div class="bar-b" style="height:${h}px"></div>
-              <div class="bar-l">${k.slice(5)}</div>
-            </div>`;}).join("")}
-          </div>
+        ${(m.alerts||[]).length?`<div class="mgr-alerts">
+          ${(m.alerts||[]).filter(a=>a.type==="waiting").length?`<span class="al al-r">⏰ ${(m.alerts||[]).filter(a=>a.type==="waiting").length} waiting 7d+</span>`:""}
+          ${(m.alerts||[]).filter(a=>a.type==="longNeg").length?`<span class="al al-a">🔴 ${(m.alerts||[]).filter(a=>a.type==="longNeg").length} long neg 14d+</span>`:""}
         </div>`:""}
       </div>
     </div>`;
   });
-  html+=`</div>`;
-  document.getElementById("pageDashboard").innerHTML=html;
+  h+=`</div><div style="font-size:11px;color:var(--t3);margin-top:12px;text-align:right">Updated: ${r.generatedAt}</div>`;
+  g("p-dashboard").innerHTML=h;
 }
 
-function renderManagers(managers){
-  document.getElementById("mgrGrid").innerHTML=managers.map(m=>{
-    const s=m.stats||{};
-    return `<div class="mgr-card">
-      <div class="mgr-card-head">
-        <div class="mgr-avatar">${m.name.charAt(0).toUpperCase()}</div>
-        <div><div class="mgr-name">${m.name}</div><div class="mgr-email">${m.email||""}</div></div>
-        <div class="mgr-wr"><div class="mgr-wr-num">${s.winRate||0}%</div><div class="mgr-wr-lbl">Win Rate</div></div>
-      </div>
-      <div class="mgr-card-body">
-        <div class="mgr-stats">
-          <div class="ms"><div class="ms-n">${s.total||0}</div><div class="ms-l">Total</div></div>
-          <div class="ms wait"><div class="ms-n">${s.waiting||0}</div><div class="ms-l">Waiting</div></div>
-          <div class="ms long"><div class="ms-n">${s.longNeg||0}</div><div class="ms-l">Long Neg</div></div>
-          <div class="ms sale"><div class="ms-n">${s.sale||0}</div><div class="ms-l">Sale</div></div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:4px">
-          <button class="btn-p" style="flex:1;font-size:12px;padding:8px" onclick="sendMsgTo('${m.name}')">Send Note</button>
-          ${ADMIN_ROLE==="owner"?`<button class="btn-p" style="font-size:12px;padding:8px;background:var(--amber-bg);color:var(--amber);border:1.5px solid var(--amber-border)" onclick="editPin('${m.name}','${m.pin||""}')">🔑 ${m.pin||"***"}</button>`:""}
-        </div>
-      </div>
-    </div>`;
-  }).join("");
+// ── Manager Detail ───────────────────────────────────────────
+async function openManager(name){
+  goPage("managers",document.querySelectorAll(".sn")[1]);
+  g("mgr-detail").innerHTML=`<div class="loading"><div class="sp"></div>Loading ${name}...</div>`;
+  const r=await api({action:"getManagerLeads",pin:PIN,managerName:name});
+  if(!r.ok){g("mgr-detail").innerHTML=`<div style="color:var(--red);padding:20px">${r.error}</div>`;return;}
+  CUR_MANAGER=name;CUR_LEADS=r.leads||[];LEAD_FILTER="";LEAD_SEARCH="";
+  renderManagerView(r);
 }
 
-// Manager detail (open in modal or navigate)
-async function openMgrDetail(name){
-  const res=await api({action:"getManagerDetail",pin:PIN,managerName:name});
-  if(!res.ok){showToast(res.error,true);return;}
-  // Navigate to managers page and show details
-  showPage("managers",document.querySelectorAll(".nav-i")[1]);
-  renderManagers(DASH_DATA.managers||[]);
+function renderManagerView(r){
+  const s=r.stats||{};
+  let h=`<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+    <div style="font-size:16px;font-weight:700;color:var(--t1)">${r.managerName}</div>
+    ${ADMIN_ROLE==="owner"?`<span class="pin-chip" onclick="editPin('${r.managerName}')">PIN: ${r.pin||"—"}</span>`:""}
+    <button class="btn sm ghost" onclick="loadDash();goPage('dashboard',document.querySelectorAll('.sn')[0])">← Back</button>
+    <div style="margin-left:auto;font-size:12px;color:var(--t3)">${s.total||0} total · Win rate: <strong>${s.winRate||0}%</strong></div>
+  </div>
+  <div class="search-bar"><span style="color:var(--t3)">🔍</span><input placeholder="Search phone or name..." oninput="onLeadSearch(this.value)"></div>
+  <div class="filter-row">
+    <div class="fp on" onclick="setLeadFilter('',this)">All</div>
+    <div class="fp" onclick="setLeadFilter('__new__',this)">New</div>
+    <div class="fp" onclick="setLeadFilter('waiting',this)">Waiting</div>
+    <div class="fp" onclick="setLeadFilter('long negotiation',this)">Long Neg.</div>
+    <div class="fp" onclick="setLeadFilter('sale',this)">Sale ✓</div>
+    <div class="fp" onclick="setLeadFilter('lost - back to marketing',this)">Lost</div>
+    <div class="fp" onclick="setLeadFilter('no responded',this)">No Resp.</div>
+  </div>
+  <div class="card">
+    <div class="lead-table-wrap" id="lead-table-wrap">`;
+  h+=renderLeadTable(CUR_LEADS);
+  h+=`</div></div>`;
+  g("mgr-detail").innerHTML=h;
 }
 
-// Messages
-function populateSelects(managers){
-  const opts=managers.map(m=>`<option value="${m.name}">${m.name}</option>`).join("");
-  ["msgTo","rptMgr"].forEach(id=>{
-    const el=document.getElementById(id);
-    if(!el) return;
-    if(id==="rptMgr") el.innerHTML=`<option value="all">All Managers</option>`+opts;
-    else el.innerHTML=opts;
-  });
-  const now=new Date();
-  const y=now.getFullYear(),mo=String(now.getMonth()+1).padStart(2,"0"),d=String(now.getDate()).padStart(2,"0");
-  const f=document.getElementById("rptFrom"),t=document.getElementById("rptTo");
-  if(f) f.value=`${y}-${mo}-01`;
-  if(t) t.value=`${y}-${mo}-${d}`;
+function renderLeadTable(leads){
+  let ls=leads.filter(l=>String(l.phone||"").replace(/[^0-9]/g,"").length>4);
+  if(LEAD_SEARCH){const q=LEAD_SEARCH.toLowerCase();ls=ls.filter(l=>String(l.phone||"").includes(q)||String(l.name||"").toLowerCase().includes(q));}
+  if(LEAD_FILTER==="__new__")ls=ls.filter(l=>!String(l.status||"").trim()||String(l.status).toLowerCase()==="new");
+  else if(LEAD_FILTER)ls=ls.filter(l=>String(l.status||"").toLowerCase().trim()===LEAD_FILTER);
+  if(!ls.length)return`<div style="padding:24px;text-align:center;color:var(--t3)">No leads found</div>`;
+  return`<table>
+    <thead><tr><th>Phone</th><th>Name</th><th>Status</th><th>Follow Up</th><th>Lead Level</th><th>Profile</th><th>Last Modified</th></tr></thead>
+    <tbody>${ls.map(l=>{
+      const s=String(l.status||"").toLowerCase().trim();
+      const bc=s==="sale"?"b-sale":s==="waiting"?"b-wait":s==="long negotiation"?"b-long":["lost - back to marketing","bad lead - back to marketing","no responded"].includes(s)?"b-dead":"b-new";
+      const sl=s==="sale"?"SALE ✓":s==="waiting"?"WAIT":s==="long negotiation"?"LONG NEG":["lost - back to marketing","bad lead - back to marketing","no responded"].includes(s)?s.slice(0,7).toUpperCase():"NEW";
+      return`<tr onclick="openLead(${l.rowIndex})">
+        <td class="tph">${l.phone||"—"}</td>
+        <td>${esc(l.name||"")}</td>
+        <td><span class="badge ${bc}">${sl}</span></td>
+        <td style="color:var(--t2)">${esc(l.followup||"")}</td>
+        <td style="color:var(--t2)">${esc(l.leadlevel||"")}</td>
+        <td style="color:var(--t3);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(l.profile||"")}</td>
+        <td style="color:var(--t3);font-family:var(--mono);font-size:11px">${l.lastModified||""}</td>
+      </tr>`;
+    }).join("")}</tbody>
+  </table>`;
 }
 
-async function loadMessages(){
-  const el=document.getElementById("msgList");
-  el.innerHTML=`<div class="loading"><div class="spinner"></div></div>`;
-  const res=await api({action:"getMessages",pin:PIN});
-  if(!res.ok){el.innerHTML=`<div style="color:var(--red)">${res.error}</div>`;return;}
-  const msgs=(res.messages||[]).sort((a,b)=>b.timestamp>a.timestamp?1:-1);
-  if(!msgs.length){el.innerHTML=`<div style="padding:24px;text-align:center;color:var(--muted)">No messages</div>`;return;}
-  el.innerHTML=msgs.map(m=>`
-    <div class="msg-item ${m.read==="Yes"?"":"unread"}">
-      <div class="msg-meta">
-        <span class="msg-from">${m.fromName}</span>
-        <span class="msg-role">${m.fromRole}</span>
-        <span class="msg-to">→ ${m.toManager}</span>
-        ${m.leadPhone?`<span class="msg-phone">📱 ${m.leadPhone}</span>`:""}
-        <span class="msg-ts">${m.timestamp}</span>
-      </div>
-      <div class="msg-text">${esc(m.message)}</div>
-      <div class="msg-btns">
-        <button class="mb mb-reply" onclick="replyMsg('${m.id}','${m.toManager}','${m.leadPhone||""}')">↩ Reply</button>
-        ${ADMIN_ROLE==="owner"?`<button class="mb mb-del" onclick="delMsg(${m.rowIndex})">Delete</button>`:""}
-        ${m.read!=="Yes"?`<button class="mb mb-read" onclick="markRead(${m.rowIndex},this)">Mark Read</button>`:""}
-      </div>
-    </div>`).join("");
+function setLeadFilter(f,btn){LEAD_FILTER=f;document.querySelectorAll(".fp").forEach(b=>b.classList.remove("on"));if(btn)btn.classList.add("on");g("lead-table-wrap").innerHTML=renderLeadTable(CUR_LEADS);}
+let sT;function onLeadSearch(v){clearTimeout(sT);sT=setTimeout(()=>{LEAD_SEARCH=v;g("lead-table-wrap").innerHTML=renderLeadTable(CUR_LEADS);},300);}
+
+// ── Lead Detail Panel ────────────────────────────────────────
+function openLead(ri){
+  CUR_LEAD=CUR_LEADS.find(l=>l.rowIndex===ri);
+  if(!CUR_LEAD)return;
+  LEAD_PENDING={};
+  renderLeadPanel();
+  g("ldp").classList.add("on");g("ldp-ov").classList.add("on");
+  g("ldp-save-btn").textContent="💾 Save Changes";
+}
+function closeLead(){g("ldp").classList.remove("on");g("ldp-ov").classList.remove("on");CUR_LEAD=null;LEAD_PENDING={};}
+
+function renderLeadPanel(){
+  const l=CUR_LEAD;
+  g("ldp-phone").textContent=l.phone||"—";
+  const notes=parseNotes(l.notedata);
+  const sales=parseSales(l.salesdata);
+
+  const fieldRow=(lbl,content)=>`<div class="frow"><div class="fl">${lbl}</div>${content}</div>`;
+  const selField=(lbl,field,opts,cur)=>fieldRow(lbl,`<select class="fsel" onchange="markDirty('${field}',this.value)">${opts.map(o=>`<option value="${o}" ${o===cur?"selected":""}>${o||"—"}</option>`).join("")}</select>`);
+  const txtField=(lbl,field,cur,ph="")=>fieldRow(lbl,`<input class="fe" value="${esc(cur||"")}" placeholder="${ph}" oninput="markDirty('${field}',this.value)">`);
+  const roField=(lbl,val)=>fieldRow(lbl,`<span class="fv">${esc(String(val||"—"))}</span>`);
+
+  g("ldp-body").innerHTML=`
+    ${l.lastChangeDesc?`<div style="background:var(--bg);border:1px solid var(--b1);border-radius:6px;padding:8px 10px;font-size:11px;color:var(--t2)">Last: ${esc(l.lastChangeDesc)}</div>`:""}
+
+    <div><div class="sec">Lead Info</div>
+    <div class="fg">
+      ${roField("Phone",l.phone)}
+      ${txtField("Name","name",l.name,"Customer name")}
+      ${roField("Country",l.country)}
+      ${roField("Campaign",l.campaign)}
+      ${roField("Entry Date",l.date)}
+    </div></div>
+
+    <div><div class="sec">Status & Stage</div>
+    <div class="fg">
+      ${selField("Status","status",STATUS_OPTS,l.status||"")}
+      ${selField("Follow Up","followup",FU_OPTS,l.followup||"")}
+      ${selField("Lead Level","leadlevel",LL_OPTS,l.leadlevel||"")}
+      ${selField("Call","call",CALL_OPTS,l.call||"")}
+      ${selField("Priority","priority",["Normal","High"],l.priority||"Normal")}
+    </div></div>
+
+    <div><div class="sec">Lead Profile</div>
+    <textarea class="pf-ta" oninput="markDirty('profile',this.value)">${esc(l.profile||"")}</textarea></div>
+
+    ${notes.length?`<div><div class="sec">Notes (${notes.length})</div>
+    ${notes.map(n=>`<div class="note-item">
+      <span class="note-type-tag">${n.type}</span><span class="note-time">${n.time}</span>
+      <div class="note-text">${esc(n.text)}</div>
+    </div>`).join("")}</div>`:""}
+
+    ${sales.length?`<div><div class="sec">Sales (${sales.length})</div>
+    ${sales.map(s=>`<div class="sale-rec">
+      <div class="sale-rec-t">${s.model} — ${s.amount} ${s.currency}</div>
+      <div class="sale-rec-d">INV: ${s.invoiceNo||"—"} · ${s.date}</div>
+    </div>`).join("")}</div>`:""}
+
+    <div><div class="sec">Change History</div>
+    ${[["Status",l.histStatus],["Follow Up",l.histFollowup],["Lead Level",l.histLevel],["Call",l.histCall]]
+      .filter(([,v])=>v).map(([lb,v])=>`<div style="margin-bottom:8px">
+        <div style="font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">${lb}</div>
+        ${v.split("|").reverse().map(e=>`<div class="hist-entry">${e.trim()}</div>`).join("")}
+      </div>`).join("")||`<div style="color:var(--t3);font-size:12px">No history yet</div>`}
+    </div>
+  `;
 }
 
-async function sendMsg(){
-  const to=document.getElementById("msgTo").value;
-  const phone=document.getElementById("msgPhone").value.trim();
-  const msg=document.getElementById("msgTa").value.trim();
-  if(!msg) return;
-  const res=await api({action:"sendMessage",pin:PIN,toManager:to,leadPhone:phone,message:msg,replyTo:REPLY_TO||""});
-  if(res.ok){
-    showToast("Sent ✓");
-    document.getElementById("msgTa").value="";
-    document.getElementById("msgPhone").value="";
-    REPLY_TO=null;
-    loadMessages();
-  } else showToast(res.error,true);
+function markDirty(field,value){
+  if(String(CUR_LEAD[field]||"")===value)delete LEAD_PENDING[field];
+  else LEAD_PENDING[field]=value;
+  const n=Object.keys(LEAD_PENDING).length;
+  g("ldp-save-btn").textContent=n>0?`💾 Save Changes (${n})`:"💾 Save Changes";
 }
 
-function sendMsgTo(name){
-  showPage("messages",document.querySelectorAll(".nav-i")[2]);
-  setTimeout(()=>{document.getElementById("msgTo").value=name;document.getElementById("msgTa").focus();},100);
+async function saveLead(){
+  if(!CUR_LEAD||!CUR_MANAGER)return;
+  const btn=g("ldp-save-btn");btn.disabled=true;btn.textContent="Saving...";
+  let saved=0,errs=[];
+  for(const[field,value]of Object.entries(LEAD_PENDING)){
+    const r=await api({action:"updateLead",pin:PIN,managerName:CUR_MANAGER,rowIndex:CUR_LEAD.rowIndex,field,value});
+    if(r.ok){CUR_LEAD[field]=value;saved++;}else errs.push(r.error);
+  }
+  LEAD_PENDING={};
+  // Update in list
+  const idx=CUR_LEADS.findIndex(l=>l.rowIndex===CUR_LEAD.rowIndex);
+  if(idx>-1)CUR_LEADS[idx]={...CUR_LEAD};
+  g("lead-table-wrap").innerHTML=renderLeadTable(CUR_LEADS);
+  if(errs.length)toast(errs[0],true);
+  else{toast(saved+" change(s) saved ✓");CUR_LEAD.lastModified=today();renderLeadPanel();}
+  btn.disabled=false;btn.textContent="💾 Save Changes";
 }
 
-function replyMsg(id,toManager,leadPhone){
-  REPLY_TO=id;
-  document.getElementById("msgTo").value=toManager;
-  document.getElementById("msgPhone").value=leadPhone||"";
-  document.getElementById("msgTa").focus();
-  showToast("Replying to message...");
-}
+function discardLead(){LEAD_PENDING={};g("ldp-save-btn").textContent="💾 Save Changes";renderLeadPanel();}
 
-async function markRead(rowIndex,btn){
-  await api({action:"markRead",pin:PIN,rowIndex});
-  if(btn) btn.style.display="none";
-  const mb=document.getElementById("navMsgBadge"),tb=document.getElementById("tbMsgBadge");
-  const cur=parseInt(mb.textContent||"0")-1;
-  if(cur<=0){mb.classList.add("hidden");tb.classList.add("hidden");}
-  else{mb.textContent=cur;tb.textContent=cur;}
+// ── Reports ──────────────────────────────────────────────────
+function initReports(){
+  const now=new Date(),y=now.getFullYear(),mo=String(now.getMonth()+1).padStart(2,"0"),d=String(now.getDate()).padStart(2,"0");
+  g("rpt-from").value=`${y}-${mo}-01`;
+  g("rpt-to").value=`${y}-${mo}-${d}`;
 }
-
-async function delMsg(rowIndex){
-  if(!confirm("Delete this message?")) return;
-  const res=await api({action:"deleteMessage",pin:PIN,rowIndex});
-  if(res.ok){showToast("Deleted");loadMessages();}
-  else showToast(res.error,true);
+function populateReportMgr(){
+  const el=g("rpt-mgr");
+  el.innerHTML=`<option value="all">All Managers</option>`+(MANAGERS_LIST||[]).map(m=>`<option value="${m.name}">${m.name}</option>`).join("");
 }
-
-// PIN management
-function editPin(name,current){
-  PENDING_PIN_MGR=name;
-  document.getElementById("pinModalTitle").textContent=`Change PIN — ${name}`;
-  document.getElementById("pinNewVal").value=current||"";
-  document.getElementById("pinModal").classList.add("open");
-}
-function closePinModal(){document.getElementById("pinModal").classList.remove("open");PENDING_PIN_MGR="";}
-async function savePinModal(){
-  const newPin=document.getElementById("pinNewVal").value.trim();
-  if(!newPin||newPin.length<4){showToast("PIN must be at least 4 digits",true);return;}
-  const res=await api({action:"updateManagerPin",pin:PIN,managerName:PENDING_PIN_MGR,newPin});
-  if(res.ok){showToast("PIN updated ✓");closePinModal();loadData();}
-  else showToast(res.error,true);
-}
-
-// Reports
 async function runReport(){
-  const managerName=document.getElementById("rptMgr").value;
-  const dateFrom=document.getElementById("rptFrom").value;
-  const dateTo=document.getElementById("rptTo").value;
-  const el=document.getElementById("rptOut");
-  el.innerHTML=`<div class="loading"><div class="spinner"></div>Generating...</div>`;
-  const res=await api({action:"getReport",pin:PIN,managerName,dateFrom,dateTo});
-  if(!res.ok){el.innerHTML=`<div style="color:var(--red)">${res.error}</div>`;return;}
-  renderReport(res);
+  const mn=g("rpt-mgr").value,f=g("rpt-from").value,t=g("rpt-to").value;
+  g("rpt-out").innerHTML=`<div class="loading"><div class="sp"></div>Generating...</div>`;
+  const r=await api({action:"getReport",pin:PIN,managerName:mn,dateFrom:f,dateTo:t});
+  if(!r.ok){g("rpt-out").innerHTML=`<div style="color:var(--red)">${r.error}</div>`;return;}
+  RPT_DATA=r;renderReport(r);g("btn-export").style.display="inline-flex";
 }
-
-function renderReport(res){
-  const el=document.getElementById("rptOut");
-  if(!res.report||!res.report.length){el.innerHTML=`<div style="padding:24px;text-align:center;color:var(--muted)">No data for this period</div>`;return;}
-  window._rptData=res;
-  let html=`<button class="export-btn" onclick="exportXls()">⬇ Export Excel</button>`;
-  res.report.forEach(r=>{
-    const s=r.stats||{};
-    const monthly=s.monthlyCounts||{};
-    const mkeys=Object.keys(monthly).sort();
-    html+=`<div class="rpt-section">
-      <div class="rpt-sec-title">${r.managerName} — ${res.dateFrom} to ${res.dateTo}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-        <table class="rpt-table">
-          <tr><th>Metric</th><th>Value</th></tr>
-          <tr><td>Total Leads</td><td><strong>${s.total||0}</strong></td></tr>
-          <tr><td>New</td><td>${s.new||0}</td></tr>
-          <tr><td>Waiting</td><td>${s.waiting||0}</td></tr>
-          <tr><td>Long Negotiation</td><td>${s.longNeg||0}</td></tr>
-          <tr><td>Sale ✓</td><td><strong style="color:var(--green2)">${s.sale||0}</strong></td></tr>
-          <tr><td>Lost</td><td>${s.lost||0}</td></tr>
-          <tr><td>Bad Lead</td><td>${s.badLead||0}</td></tr>
-          <tr><td>No Response</td><td>${s.noResponded||0}</td></tr>
-          <tr><td>Win Rate</td><td><strong style="color:var(--green2)">${s.winRate||0}%</strong></td></tr>
-          <tr><td>Conv. Rate</td><td>${s.convRate||0}%</td></tr>
-        </table>
-        ${mkeys.length?`<div>
-          <div class="rpt-sec-title">Monthly Volume</div>
-          <table class="rpt-table">
-            <tr>${mkeys.map(k=>`<th>${k}</th>`).join("")}</tr>
-            <tr>${mkeys.map(k=>`<td>${monthly[k]}</td>`).join("")}</tr>
-          </table>
-        </div>`:""}
+function renderReport(r){
+  let h="";
+  (r.report||[]).forEach(rep=>{
+    const s=rep.stats||{},mo=rep.monthlyCounts||{};
+    const mkeys=Object.keys(mo).sort();
+    h+=`<div class="rpt-sec">
+      <div class="rpt-sec-title">${rep.managerName} — ${r.dateFrom||"all"} → ${r.dateTo||"now"}</div>
+      <div class="rpt-kpis">
+        <div class="kpi"><div class="kpi-n">${s.total||0}</div><div class="kpi-l">Total</div></div>
+        <div class="kpi s"><div class="kpi-n">${s.sale||0}</div><div class="kpi-l">Sale ✓</div></div>
+        <div class="kpi r"><div class="kpi-n">${s.longNeg||0}</div><div class="kpi-l">Long Neg</div></div>
+        <div class="kpi r"><div class="kpi-n">${s.lost||0}</div><div class="kpi-l">Lost</div></div>
+        <div class="kpi"><div class="kpi-n">${s.winRate||0}%</div><div class="kpi-l">Win Rate</div></div>
       </div>
+      ${mkeys.length?`<div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Monthly Volume</div>
+      <table style="margin-bottom:14px"><thead><tr>${mkeys.map(k=>`<th>${k}</th>`).join("")}</tr></thead>
+      <tbody><tr>${mkeys.map(k=>`<td>${mo[k]}</td>`).join("")}</tr></tbody></table>`:""}
+      <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">All Leads (${rep.leads.length})</div>
+      <div style="overflow-x:auto"><table><thead><tr><th>Phone</th><th>Name</th><th>Status</th><th>Country</th><th>Entry Date</th><th>Follow Up</th><th>Lead Level</th><th>Profile</th></tr></thead>
+      <tbody>${(rep.leads||[]).slice(0,200).map(l=>`<tr><td class="tph">${l.phone||""}</td><td>${esc(l.name||"")}</td><td>${esc(l.status||"New")}</td><td>${esc(l.country||"")}</td><td>${l.date||""}</td><td>${esc(l.followup||"")}</td><td>${esc(l.leadlevel||"")}</td><td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(l.profile||"")}</td></tr>`).join("")}
+      </tbody></table></div>
     </div>`;
   });
-  el.innerHTML=html;
+  g("rpt-out").innerHTML=h||`<div style="padding:24px;color:var(--t3);text-align:center">No data</div>`;
 }
-
 function exportXls(){
-  const res=window._rptData;
-  if(!res) return;
+  if(!RPT_DATA)return;
   const wb=XLSX.utils.book_new();
-  res.report.forEach(r=>{
-    const s=r.stats||{};
-    const data=[
-      ["Manager",r.managerName],["Period",`${res.dateFrom} to ${res.dateTo}`],
-      ["Generated",res.generatedAt],[],
-      ["Metric","Value"],
-      ["Total Leads",s.total||0],["New",s.new||0],["Waiting",s.waiting||0],
-      ["Long Negotiation",s.longNeg||0],["Sale",s.sale||0],
-      ["Lost",s.lost||0],["Bad Lead",s.badLead||0],["No Response",s.noResponded||0],
-      ["Win Rate (%)",s.winRate||0],["Conversion Rate (%)",s.convRate||0],[],
-      ["Month","Leads"],
-      ...Object.entries(s.monthlyCounts||{}).sort().map(([k,v])=>[k,v]),[],
-      ["Phone","Name","Status","Country","Entry Date","Follow Up","Lead Level","Profile","Note"],
-      ...(r.leads||[]).map(l=>[l.phone,l.name,l.status,l.country,l.date,l.followup,l.leadlevel,l.profile,l.note])
+  (RPT_DATA.report||[]).forEach(rep=>{
+    const s=rep.stats||{};
+    const rows=[
+      ["Manager",rep.managerName],["Period",`${RPT_DATA.dateFrom||""} to ${RPT_DATA.dateTo||""}`],["Generated",RPT_DATA.generatedAt],[],
+      ["Metric","Value"],["Total",s.total||0],["Sale",s.sale||0],["Waiting",s.waiting||0],["Long Neg",s.longNeg||0],
+      ["Lost",s.lost||0],["Bad Lead",s.badLead||0],["No Responded",s.noResponded||0],["Win Rate %",s.winRate||0],[],
+      ["Month","Count"],...Object.entries(rep.monthlyCounts||{}).sort().map(([k,v])=>[k,v]),[],
+      ["Phone","Name","Status","Country","Date","Follow Up","Lead Level","Profile","Note","Last Modified"],
+      ...(rep.leads||[]).map(l=>[l.phone,l.name,l.status,l.country,l.date,l.followup,l.leadlevel,l.profile,l.note,l.lastModified])
     ];
-    const ws=XLSX.utils.aoa_to_sheet(data);
-    ws["!cols"]=[{wch:20},{wch:30}];
-    XLSX.utils.book_append_sheet(wb,ws,r.managerName.substring(0,31));
+    const ws=XLSX.utils.aoa_to_sheet(rows);
+    ws["!cols"]=[{wch:20},{wch:25},{wch:20},{wch:12},{wch:12},{wch:20},{wch:18},{wch:40},{wch:30},{wch:16}];
+    XLSX.utils.book_append_sheet(wb,ws,rep.managerName.substring(0,31));
   });
-  XLSX.writeFile(wb,`Aryaminer_Report_${res.dateFrom}_${res.dateTo}.xlsx`);
-  showToast("Excel downloaded ✓");
+  XLSX.writeFile(wb,`Aryaminer_Report_${RPT_DATA.dateFrom||"all"}.xlsx`);
+  toast("Excel downloaded ✓");
 }
 
-function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-let toastTimer;
-function showToast(msg,isErr=false){
-  const t=document.getElementById("toast");
-  t.textContent=msg; t.className="toast"+(isErr?" err":"");
-  clearTimeout(toastTimer);
-  requestAnimationFrame(()=>{t.classList.add("on");toastTimer=setTimeout(()=>t.classList.remove("on"),2500);});
+// ── PIN modal ────────────────────────────────────────────────
+function editPin(name){
+  PENDING_PIN_MGR=name;
+  g("pin-modal-t").textContent=`Change PIN — ${name}`;
+  g("pin-new-val").value="";
+  g("pin-modal").classList.add("on");
 }
+function closePinModal(){g("pin-modal").classList.remove("on");PENDING_PIN_MGR="";}
+async function savePinModal(){
+  const v=g("pin-new-val").value.trim();
+  if(!v||v.length<4){toast("Min 4 digits",true);return;}
+  const r=await api({action:"updateManagerPin",pin:PIN,managerName:PENDING_PIN_MGR,newPin:v});
+  if(r.ok){toast("PIN updated ✓");closePinModal();loadDash();}else toast(r.error,true);
+}
+
+// ── Helpers ──────────────────────────────────────────────────
+function g(id){return document.getElementById(id);}
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function today(){return new Date().toISOString().slice(0,16).replace("T"," ");}
+function parseNotes(raw){if(!raw)return[];return raw.split("\n").filter(Boolean).reverse().map(l=>{const m=l.match(/^\[(.+?)\]\s*\[(.+?)\]\s*(.+)$/);return m?{time:m[1],type:m[2],text:m[3]}:{time:"",type:"Note",text:l};});}
+function parseSales(raw){if(!raw)return[];try{return raw.split("|||").map(s=>JSON.parse(s)).reverse();}catch{return[];}}
+let tT;function toast(msg,err=false){const t=g("toast");t.textContent=msg;t.className="toast"+(err?" err":"");clearTimeout(tT);requestAnimationFrame(()=>{t.classList.add("on");tT=setTimeout(()=>t.classList.remove("on"),2500);});}
 </script>
 </body>
 </html>
